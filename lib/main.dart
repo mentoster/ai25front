@@ -1,8 +1,9 @@
-import 'package:ai25front/CardiogramChart.dart';
+import 'package:ai25front/cardiogram_chart.dart';
+import 'package:ai25front/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -11,6 +12,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Кардиограмма',
+      theme: greenTheme,
       home: Scaffold(
         appBar: AppBar(title: const Text('Кардиограмма')),
         body: const Center(
