@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Кардиограмма',
+      title: 'Green Themed App',
       theme: greenTheme,
       home: Scaffold(
         appBar: AppBar(title: const Text('Кардиограмма')),

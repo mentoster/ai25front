@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:math';
-import 'package:fl_chart/fl_chart.dart';
+
+import 'package:ai25front/cardio_client.dart';
+import 'package:ai25front/src/generated/cardio.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:io';
+import 'package:fl_chart/fl_chart.dart';
 
 class CardiogramChart extends StatefulWidget {
   const CardiogramChart({super.key});
@@ -14,77 +14,59 @@ class CardiogramChart extends StatefulWidget {
 
 class _CardiogramChartState extends State<CardiogramChart> {
   List<FlSpot> cardiogramData = [];
-  Timer? _dataTimer;
-  final Random _random = Random();
-  String? _outputDirectory;
+  CardioClient? _client;
+  StreamSubscription<CardioData>? _dataSubscription;
 
   @override
   void initState() {
     super.initState();
     _initializeData();
-    _startDataTimer();
+    _connectToServer();
   }
 
+  // Initialize with dummy data
   void _initializeData() {
-    // Начальные точки
     cardiogramData = List.generate(10, (index) => FlSpot(index.toDouble(), 0));
   }
 
-  void _startDataTimer() {
-    // Генерация новых точек кардиограммы каждые 500 миллисекунд
-    _dataTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      // Генерируем случайное значение для нового пика
-      double yValue = _random.nextBool() ? 2 : -1; // Генерация случайных пиков
-      setState(() {
-        cardiogramData.add(FlSpot(cardiogramData.length.toDouble(), yValue));
-
-        // Оставляем последние 10 точек
-        if (cardiogramData.length > 10) {
-          cardiogramData.removeAt(0);
-          // Обновляем индексы для плавного перехода
-          for (int i = 0; i < cardiogramData.length; i++) {
-            cardiogramData[i] = FlSpot(i.toDouble(), cardiogramData[i].y);
-          }
-        }
-      });
+  // Establish a connection to the gRPC server and start receiving data
+  void _connectToServer() {
+    _client = CardioClient('localhost', 50051); // Use server IP in production
+    _dataSubscription =
+        _client!.streamCardioData("flutter_client").listen((data) {
+      _updateChartData(data.vector);
     });
   }
 
-  void _stopDataTimer() {
-    // Остановка таймера
-    _dataTimer?.cancel();
-  }
+  // Update the chart with new data received from the server
+  void _updateChartData(List<double> vector) {
+    setState(() {
+      // Append new data points with continuous x-axis values
+      final newPoints = List<FlSpot>.generate(
+          vector.length,
+          (index) => FlSpot(
+              (cardiogramData.length + index).toDouble(), vector[index]));
 
-  void _pickDirectory() async {
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-    if (selectedDirectory != null) {
-      setState(() {
-        _outputDirectory = selectedDirectory;
-      });
-    }
-  }
+      cardiogramData.addAll(newPoints);
 
-  void _saveToFile() async {
-    if (_outputDirectory != null) {
-      String filePath = '$_outputDirectory/cardiogram_data.txt';
-      File file = File(filePath);
-      List<String> dataStrings =
-          cardiogramData.map((spot) => '${spot.x}, ${spot.y}').toList();
-      await file.writeAsString(dataStrings.join('\n'));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Данные сохранены в $filePath')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Пожалуйста, выберите директорию для сохранения.')),
-      );
-    }
+      // Keep only the latest 100 data points for smooth scrolling effect
+      if (cardiogramData.length > 100) {
+        cardiogramData.removeRange(0, cardiogramData.length - 100);
+      }
+
+      // Re-index x values for a horizontal scroll effect
+      cardiogramData = cardiogramData
+          .asMap()
+          .entries
+          .map((entry) => FlSpot(entry.key.toDouble(), entry.value.y))
+          .toList();
+    });
   }
 
   @override
   void dispose() {
-    _dataTimer?.cancel();
+    _dataSubscription?.cancel();
+    _client?.shutdown();
     super.dispose();
   }
 
@@ -96,22 +78,16 @@ class _CardiogramChartState extends State<CardiogramChart> {
           child: LineChart(
             LineChartData(
               minX: 0,
-              maxX: 9,
-              minY: -2,
-              maxY: 4,
-              titlesData: FlTitlesData(
-                show: false, // Отключаем заголовки осей
-              ),
+              maxX: 99, // Fixed range to show only the last 100 points
+              minY: -15,
+              maxY: 15,
+              titlesData: FlTitlesData(show: false),
               gridData: FlGridData(
                 show: true,
-                getDrawingHorizontalLine: (value) => FlLine(
-                  color: Colors.grey.withOpacity(0.2),
-                  strokeWidth: 1,
-                ),
-                getDrawingVerticalLine: (value) => FlLine(
-                  color: Colors.grey.withOpacity(0.2),
-                  strokeWidth: 1,
-                ),
+                getDrawingHorizontalLine: (value) =>
+                    FlLine(color: Colors.grey.withOpacity(0.2), strokeWidth: 1),
+                getDrawingVerticalLine: (value) =>
+                    FlLine(color: Colors.grey.withOpacity(0.2), strokeWidth: 1),
               ),
               borderData: FlBorderData(show: false),
               lineBarsData: [
@@ -122,9 +98,6 @@ class _CardiogramChartState extends State<CardiogramChart> {
                   barWidth: 2,
                   isStrokeCapRound: true,
                   dotData: FlDotData(show: false),
-                  belowBarData: BarAreaData(
-                    show: false, // Убираем нижнюю заливку
-                  ),
                 ),
               ],
             ),
@@ -132,22 +105,12 @@ class _CardiogramChartState extends State<CardiogramChart> {
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ElevatedButton(
-                onPressed: _stopDataTimer,
-                child: const Text('Стоп'),
-              ),
-              ElevatedButton(
-                onPressed: _pickDirectory,
-                child: const Text('Выбрать директорию'),
-              ),
-              ElevatedButton(
-                onPressed: _saveToFile,
-                child: const Text('Сохранить файл'),
-              ),
-            ],
+          child: ElevatedButton(
+            onPressed: () async {
+              _dataSubscription?.pause();
+              await _client?.shutdown();
+            },
+            child: const Text('Stop Streaming'),
           ),
         ),
       ],
