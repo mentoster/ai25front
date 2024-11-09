@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:ai25front/data/set_file_to_process_response_data.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'cardiogram_chart.dart';
@@ -26,27 +27,31 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
   StreamSubscription<CardioData>? _dataSubscription;
 
   double _sliderPosition = 0;
-  double _visibleRange = 5000;
-  double _maxSliderPosition = 5000;
-  final double maxRange = 10000;
+  double _visibleRange = 20000;
+  double _maxSliderPosition = 20000;
+  final double maxRange = 40000;
   bool _isAutoScroll = true;
   bool _isStreaming = true;
 
   double _xValue = 0;
   double _xOffset = 0;
-bool _isMouseCardCreated = false;
+  bool _isMouseCardCreated = false;
   @override
   void initState() {
     super.initState();
     _initializeChannels();
     _connectToServer();
+    _isMouseCardCreated = SetFileToProcessResponseData.pharm;
   }
 
   void _initializeChannels() {
     _availableChannels.addAll([
-      ChannelData(name: 'Канал 1', color: Colors.redAccent),
-      ChannelData(name: 'Канал 2', color: Colors.blueAccent),
-      ChannelData(name: 'Канал 3', color: Colors.greenAccent),
+      ChannelData(
+          name: SetFileToProcessResponseData.label1, color: Colors.redAccent),
+      ChannelData(
+          name: SetFileToProcessResponseData.label2, color: Colors.blueAccent),
+      ChannelData(
+          name: SetFileToProcessResponseData.label3, color: Colors.greenAccent),
       // Add more channels if needed
     ]);
 
@@ -60,7 +65,10 @@ bool _isMouseCardCreated = false;
   }
 
   void _subscribeToData() {
-    _dataSubscription = _client.streamCardioData("flutter_client").listen(
+    _dataSubscription = (SetFileToProcessResponseData.isAnnotated
+            ? _client.streamAnnotatedData("flutter_client")
+            : _client.streamCardioData("flutter_client"))
+        .listen(
       (data) {
         _updateChartData(data);
       },
@@ -69,29 +77,22 @@ bool _isMouseCardCreated = false;
       _isStreaming = true;
     });
   }
-void _updateChartData(CardioData data) {
+
+  void _updateChartData(CardioData data) {
     setState(() {
       print("Updating chart data...");
 
       for (final channel in _availableChannels) {
         List<double> vectorData;
-
-        // Determine the vector data based on the channel name
-        switch (channel.name) {
-          case 'Канал 1':
-            vectorData = data.vector1;
-            break;
-          case 'Канал 2':
-            vectorData = data.vector2;
-            break;
-          case 'Канал 3':
-            vectorData = data.vector3;
-            break;
-          default:
-            vectorData = [];
-            break;
+        if (channel.name == SetFileToProcessResponseData.label1) {
+          vectorData = data.vector1;
+        } else if (channel.name == SetFileToProcessResponseData.label2) {
+          vectorData = data.vector2;
+        } else if (channel.name == SetFileToProcessResponseData.label3) {
+          vectorData = data.vector3;
+        } else {
+          vectorData = [];
         }
-
         // Map the incoming data to FlSpot points and add to channel data
         final newPoints =
             vectorData.map((value) => FlSpot(_xValue++, value)).toList();
@@ -122,10 +123,8 @@ void _updateChartData(CardioData data) {
         _sliderPosition = (_maxSliderPosition - _visibleRange)
             .clamp(_xOffset, _maxSliderPosition);
       }
-
     });
   }
-
 
   @override
   void dispose() {
@@ -204,6 +203,9 @@ void _updateChartData(CardioData data) {
                                               BorderRadius.circular(12.0),
                                         ),
                                       ),
+                                      controller: TextEditingController(
+                                        text: SetFileToProcessResponseData.age,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 16),
@@ -211,6 +213,9 @@ void _updateChartData(CardioData data) {
                                   Expanded(
                                     flex: 2,
                                     child: DropdownButtonFormField<String>(
+                                      value: SetFileToProcessResponseData.isMale
+                                          ? 'Мужской'
+                                          : 'Женский',
                                       decoration: InputDecoration(
                                         labelText: 'Пол',
                                         border: OutlineInputBorder(
@@ -268,8 +273,8 @@ void _updateChartData(CardioData data) {
                   borderRadius: BorderRadius.circular(16.0),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 12.0, horizontal: 8.0),
+                  padding:
+                      const EdgeInsets.only(top: 32.0, left: 16, right: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -355,7 +360,6 @@ void _updateChartData(CardioData data) {
             ),
           ),
         ),
-
         const SizedBox(height: 16),
         Card(
           elevation: 4,
@@ -415,8 +419,8 @@ void _updateChartData(CardioData data) {
                         ),
                         child: Slider(
                           value: maxRange - _visibleRange,
-                          min: maxRange - 10000,
-                          max: maxRange - 1000,
+                          min: maxRange - 40000,
+                          max: maxRange - 5000,
                           divisions: 9,
                           onChanged: (value) {
                             _onZoomSliderChange(maxRange - value);
@@ -427,7 +431,7 @@ void _updateChartData(CardioData data) {
                     Icon(Icons.zoom_in, color: Colors.grey),
                     const SizedBox(width: 8),
                     Text(
-                      "X${(5000 / _visibleRange).toStringAsFixed(1)}",
+                      "X${(40000 / _visibleRange).toStringAsFixed(1)}",
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),

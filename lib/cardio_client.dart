@@ -26,7 +26,8 @@ class CardioClient {
     return response.success;
   }
 
-  Future<bool> setFileToProcess(String fileToProcess) async {
+  Future<SetFileToProcessResponse> setFileToProcess(
+      String fileToProcess) async {
     // Updated field name to match proto3 syntax
     final request = SetFileToProcessRequest()..fileToProcess = fileToProcess;
     final response = await _client!.setFileToProcess(request);
@@ -38,13 +39,20 @@ class CardioClient {
     print('Label1: ${response.label1}');
     print('Label2: ${response.label2}');
     print('Label3: ${response.label3}');
+    print('IsMale ${response.isMale}');
+    print('Is Annotated: ${response.isAnnotated}');
 
-    return response.success;
+    return response;
   }
 
   Stream<CardioData> streamCardioData(String clientId) {
     final request = CardioRequest();
     return _client!.streamCardioData(request);
+  }
+
+  Stream<CardioData> streamAnnotatedData(String clientId) {
+    final request = CardioRequest();
+    return _client!.streamAnnotatedData(request);
   }
 
   void close() {

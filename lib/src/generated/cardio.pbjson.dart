@@ -26,18 +26,19 @@ final $typed_data.Uint8List cardioRequestDescriptor = $convert.base64Decode(
 const CardioData$json = {
   '1': 'CardioData',
   '2': [
-    {'1': 'timestamp', '3': 1, '4': 1, '5': 5, '10': 'timestamp'},
+    {'1': 'timestamp', '3': 1, '4': 3, '5': 5, '10': 'timestamp'},
     {'1': 'vector1', '3': 2, '4': 3, '5': 2, '10': 'vector1'},
     {'1': 'vector2', '3': 3, '4': 3, '5': 2, '10': 'vector2'},
     {'1': 'vector3', '3': 4, '4': 3, '5': 2, '10': 'vector3'},
+    {'1': 'annotation', '3': 5, '4': 1, '5': 9, '10': 'annotation'},
   ],
 };
 
 /// Descriptor for `CardioData`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List cardioDataDescriptor = $convert.base64Decode(
-    'CgpDYXJkaW9EYXRhEhwKCXRpbWVzdGFtcBgBIAEoBVIJdGltZXN0YW1wEhgKB3ZlY3RvcjEYAi'
+    'CgpDYXJkaW9EYXRhEhwKCXRpbWVzdGFtcBgBIAMoBVIJdGltZXN0YW1wEhgKB3ZlY3RvcjEYAi'
     'ADKAJSB3ZlY3RvcjESGAoHdmVjdG9yMhgDIAMoAlIHdmVjdG9yMhIYCgd2ZWN0b3IzGAQgAygC'
-    'Ugd2ZWN0b3Iz');
+    'Ugd2ZWN0b3IzEh4KCmFubm90YXRpb24YBSABKAlSCmFubm90YXRpb24=');
 
 @$core.Deprecated('Use setWorkingDirectoryRequestDescriptor instead')
 const SetWorkingDirectoryRequest$json = {
@@ -85,15 +86,19 @@ const SetFileToProcessResponse$json = {
     {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
     {'1': 'age', '3': 2, '4': 1, '5': 9, '10': 'age'},
     {'1': 'pharm', '3': 3, '4': 1, '5': 8, '10': 'pharm'},
-    {'1': 'label1', '3': 4, '4': 1, '5': 9, '10': 'label1'},
-    {'1': 'label2', '3': 5, '4': 1, '5': 9, '10': 'label2'},
-    {'1': 'label3', '3': 6, '4': 1, '5': 9, '10': 'label3'},
+    {'1': 'is_male', '3': 4, '4': 1, '5': 8, '10': 'isMale'},
+    {'1': 'label1', '3': 5, '4': 1, '5': 9, '10': 'label1'},
+    {'1': 'label2', '3': 6, '4': 1, '5': 9, '10': 'label2'},
+    {'1': 'label3', '3': 7, '4': 1, '5': 9, '10': 'label3'},
+    {'1': 'is_annotated', '3': 8, '4': 1, '5': 8, '10': 'isAnnotated'},
   ],
 };
 
 /// Descriptor for `SetFileToProcessResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List setFileToProcessResponseDescriptor = $convert.base64Decode(
     'ChhTZXRGaWxlVG9Qcm9jZXNzUmVzcG9uc2USGAoHc3VjY2VzcxgBIAEoCFIHc3VjY2VzcxIQCg'
-    'NhZ2UYAiABKAlSA2FnZRIUCgVwaGFybRgDIAEoCFIFcGhhcm0SFgoGbGFiZWwxGAQgASgJUgZs'
-    'YWJlbDESFgoGbGFiZWwyGAUgASgJUgZsYWJlbDISFgoGbGFiZWwzGAYgASgJUgZsYWJlbDM=');
+    'NhZ2UYAiABKAlSA2FnZRIUCgVwaGFybRgDIAEoCFIFcGhhcm0SFwoHaXNfbWFsZRgEIAEoCFIG'
+    'aXNNYWxlEhYKBmxhYmVsMRgFIAEoCVIGbGFiZWwxEhYKBmxhYmVsMhgGIAEoCVIGbGFiZWwyEh'
+    'YKBmxhYmVsMxgHIAEoCVIGbGFiZWwzEiEKDGlzX2Fubm90YXRlZBgIIAEoCFILaXNBbm5vdGF0'
+    'ZWQ=');
 

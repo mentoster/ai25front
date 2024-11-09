@@ -47,14 +47,15 @@ class CardioRequest extends $pb.GeneratedMessage {
 
 class CardioData extends $pb.GeneratedMessage {
   factory CardioData({
-    $core.int? timestamp,
+    $core.Iterable<$core.int>? timestamp,
     $core.Iterable<$core.double>? vector1,
     $core.Iterable<$core.double>? vector2,
     $core.Iterable<$core.double>? vector3,
+    $core.String? annotation,
   }) {
     final $result = create();
     if (timestamp != null) {
-      $result.timestamp = timestamp;
+      $result.timestamp.addAll(timestamp);
     }
     if (vector1 != null) {
       $result.vector1.addAll(vector1);
@@ -65,6 +66,9 @@ class CardioData extends $pb.GeneratedMessage {
     if (vector3 != null) {
       $result.vector3.addAll(vector3);
     }
+    if (annotation != null) {
+      $result.annotation = annotation;
+    }
     return $result;
   }
   CardioData._() : super();
@@ -72,10 +76,11 @@ class CardioData extends $pb.GeneratedMessage {
   factory CardioData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CardioData', package: const $pb.PackageName(_omitMessageNames ? '' : 'cardio'), createEmptyInstance: create)
-    ..a<$core.int>(1, _omitFieldNames ? '' : 'timestamp', $pb.PbFieldType.O3)
+    ..p<$core.int>(1, _omitFieldNames ? '' : 'timestamp', $pb.PbFieldType.K3)
     ..p<$core.double>(2, _omitFieldNames ? '' : 'vector1', $pb.PbFieldType.KF)
     ..p<$core.double>(3, _omitFieldNames ? '' : 'vector2', $pb.PbFieldType.KF)
     ..p<$core.double>(4, _omitFieldNames ? '' : 'vector3', $pb.PbFieldType.KF)
+    ..aOS(5, _omitFieldNames ? '' : 'annotation')
     ..hasRequiredFields = false
   ;
 
@@ -101,13 +106,7 @@ class CardioData extends $pb.GeneratedMessage {
   static CardioData? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get timestamp => $_getIZ(0);
-  @$pb.TagNumber(1)
-  set timestamp($core.int v) { $_setSignedInt32(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasTimestamp() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearTimestamp() => clearField(1);
+  $core.List<$core.int> get timestamp => $_getList(0);
 
   @$pb.TagNumber(2)
   $core.List<$core.double> get vector1 => $_getList(1);
@@ -117,6 +116,15 @@ class CardioData extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(4)
   $core.List<$core.double> get vector3 => $_getList(3);
+
+  @$pb.TagNumber(5)
+  $core.String get annotation => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set annotation($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasAnnotation() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearAnnotation() => clearField(5);
 }
 
 class SetWorkingDirectoryRequest extends $pb.GeneratedMessage {
@@ -274,9 +282,11 @@ class SetFileToProcessResponse extends $pb.GeneratedMessage {
     $core.bool? success,
     $core.String? age,
     $core.bool? pharm,
+    $core.bool? isMale,
     $core.String? label1,
     $core.String? label2,
     $core.String? label3,
+    $core.bool? isAnnotated,
   }) {
     final $result = create();
     if (success != null) {
@@ -288,6 +298,9 @@ class SetFileToProcessResponse extends $pb.GeneratedMessage {
     if (pharm != null) {
       $result.pharm = pharm;
     }
+    if (isMale != null) {
+      $result.isMale = isMale;
+    }
     if (label1 != null) {
       $result.label1 = label1;
     }
@@ -296,6 +309,9 @@ class SetFileToProcessResponse extends $pb.GeneratedMessage {
     }
     if (label3 != null) {
       $result.label3 = label3;
+    }
+    if (isAnnotated != null) {
+      $result.isAnnotated = isAnnotated;
     }
     return $result;
   }
@@ -307,9 +323,11 @@ class SetFileToProcessResponse extends $pb.GeneratedMessage {
     ..aOB(1, _omitFieldNames ? '' : 'success')
     ..aOS(2, _omitFieldNames ? '' : 'age')
     ..aOB(3, _omitFieldNames ? '' : 'pharm')
-    ..aOS(4, _omitFieldNames ? '' : 'label1')
-    ..aOS(5, _omitFieldNames ? '' : 'label2')
-    ..aOS(6, _omitFieldNames ? '' : 'label3')
+    ..aOB(4, _omitFieldNames ? '' : 'isMale')
+    ..aOS(5, _omitFieldNames ? '' : 'label1')
+    ..aOS(6, _omitFieldNames ? '' : 'label2')
+    ..aOS(7, _omitFieldNames ? '' : 'label3')
+    ..aOB(8, _omitFieldNames ? '' : 'isAnnotated')
     ..hasRequiredFields = false
   ;
 
@@ -362,31 +380,49 @@ class SetFileToProcessResponse extends $pb.GeneratedMessage {
   void clearPharm() => clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get label1 => $_getSZ(3);
+  $core.bool get isMale => $_getBF(3);
   @$pb.TagNumber(4)
-  set label1($core.String v) { $_setString(3, v); }
+  set isMale($core.bool v) { $_setBool(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasLabel1() => $_has(3);
+  $core.bool hasIsMale() => $_has(3);
   @$pb.TagNumber(4)
-  void clearLabel1() => clearField(4);
+  void clearIsMale() => clearField(4);
 
   @$pb.TagNumber(5)
-  $core.String get label2 => $_getSZ(4);
+  $core.String get label1 => $_getSZ(4);
   @$pb.TagNumber(5)
-  set label2($core.String v) { $_setString(4, v); }
+  set label1($core.String v) { $_setString(4, v); }
   @$pb.TagNumber(5)
-  $core.bool hasLabel2() => $_has(4);
+  $core.bool hasLabel1() => $_has(4);
   @$pb.TagNumber(5)
-  void clearLabel2() => clearField(5);
+  void clearLabel1() => clearField(5);
 
   @$pb.TagNumber(6)
-  $core.String get label3 => $_getSZ(5);
+  $core.String get label2 => $_getSZ(5);
   @$pb.TagNumber(6)
-  set label3($core.String v) { $_setString(5, v); }
+  set label2($core.String v) { $_setString(5, v); }
   @$pb.TagNumber(6)
-  $core.bool hasLabel3() => $_has(5);
+  $core.bool hasLabel2() => $_has(5);
   @$pb.TagNumber(6)
-  void clearLabel3() => clearField(6);
+  void clearLabel2() => clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get label3 => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set label3($core.String v) { $_setString(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasLabel3() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearLabel3() => clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.bool get isAnnotated => $_getBF(7);
+  @$pb.TagNumber(8)
+  set isAnnotated($core.bool v) { $_setBool(7, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasIsAnnotated() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearIsAnnotated() => clearField(8);
 }
 
 

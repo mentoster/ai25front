@@ -61,9 +61,12 @@ class _MyAppState extends State<MyApp> {
                 children: [
                   SideMenu(),
                   Expanded(
-                    child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: InsideScreen()),
+                    child: Container(
+                      color: Colors.grey[200],
+                      child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: InsideScreen()),
+                    ),
                   ),
                 ],
               )

@@ -33,6 +33,10 @@ class CardioServiceClient extends $grpc.Client {
       '/cardio.CardioService/SetFileToProcess',
       ($0.SetFileToProcessRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.SetFileToProcessResponse.fromBuffer(value));
+  static final _$streamAnnotatedData = $grpc.ClientMethod<$0.CardioRequest, $0.CardioData>(
+      '/cardio.CardioService/StreamAnnotatedData',
+      ($0.CardioRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.CardioData.fromBuffer(value));
 
   CardioServiceClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -50,6 +54,10 @@ class CardioServiceClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.SetFileToProcessResponse> setFileToProcess($0.SetFileToProcessRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$setFileToProcess, request, options: options);
+  }
+
+  $grpc.ResponseStream<$0.CardioData> streamAnnotatedData($0.CardioRequest request, {$grpc.CallOptions? options}) {
+    return $createStreamingCall(_$streamAnnotatedData, $async.Stream.fromIterable([request]), options: options);
   }
 }
 
@@ -79,6 +87,13 @@ abstract class CardioServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.SetFileToProcessRequest.fromBuffer(value),
         ($0.SetFileToProcessResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.CardioRequest, $0.CardioData>(
+        'StreamAnnotatedData',
+        streamAnnotatedData_Pre,
+        false,
+        true,
+        ($core.List<$core.int> value) => $0.CardioRequest.fromBuffer(value),
+        ($0.CardioData value) => value.writeToBuffer()));
   }
 
   $async.Stream<$0.CardioData> streamCardioData_Pre($grpc.ServiceCall call, $async.Future<$0.CardioRequest> request) async* {
@@ -93,7 +108,12 @@ abstract class CardioServiceBase extends $grpc.Service {
     return setFileToProcess(call, await request);
   }
 
+  $async.Stream<$0.CardioData> streamAnnotatedData_Pre($grpc.ServiceCall call, $async.Future<$0.CardioRequest> request) async* {
+    yield* streamAnnotatedData(call, await request);
+  }
+
   $async.Stream<$0.CardioData> streamCardioData($grpc.ServiceCall call, $0.CardioRequest request);
   $async.Future<$0.SetWorkingDirectoryResponse> setWorkingDirectory($grpc.ServiceCall call, $0.SetWorkingDirectoryRequest request);
   $async.Future<$0.SetFileToProcessResponse> setFileToProcess($grpc.ServiceCall call, $0.SetFileToProcessRequest request);
+  $async.Stream<$0.CardioData> streamAnnotatedData($grpc.ServiceCall call, $0.CardioRequest request);
 }

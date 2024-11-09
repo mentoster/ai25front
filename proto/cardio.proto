@@ -7,16 +7,18 @@ service CardioService {
   rpc StreamCardioData(CardioRequest) returns (stream CardioData);
   rpc SetWorkingDirectory(SetWorkingDirectoryRequest) returns (SetWorkingDirectoryResponse);
   rpc SetFileToProcess(SetFileToProcessRequest) returns (SetFileToProcessResponse);
+  rpc StreamAnnotatedData(CardioRequest) returns (stream CardioData);
 }
 
 message CardioRequest {
 }
 
 message CardioData {
-  int32 timestamp = 1;
+  repeated int32 timestamp = 1;
   repeated float vector1 = 2;
   repeated float vector2 = 3;
   repeated float vector3 = 4;
+  string annotation = 5;
 }
 
 message SetWorkingDirectoryRequest {
@@ -35,7 +37,9 @@ message SetFileToProcessResponse {
   bool success = 1;
   string age = 2;
   bool pharm = 3;
-  string label1 = 4;
-  string label2 = 5;
-  string label3 = 6;
+  bool is_male = 4;
+  string label1 = 5;
+  string label2 = 6;
+  string label3 = 7;
+  bool is_annotated = 8;
 }

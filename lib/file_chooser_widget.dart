@@ -1,4 +1,5 @@
 // file_chooser_widget.dart
+import 'package:ai25front/data/set_file_to_process_response_data.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:ai25front/cardio_client.dart';
@@ -29,7 +30,8 @@ class _FileChooserWidgetState extends State<FileChooserWidget> {
 
     if (result != null && result.files.single.path != null) {
       String selectedFile = result.files.single.path!;
-      CardioClient().setFileToProcess(selectedFile);
+      SetFileToProcessResponseData.updateFromResponse(
+          await CardioClient().setFileToProcess(selectedFile));
       print('Selected file: $selectedFile');
 
       // Передаем результат в родительский виджет
@@ -89,23 +91,6 @@ class _FileChooserWidgetState extends State<FileChooserWidget> {
               ),
             ],
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// Next widget that shows up after the file is selected
-class NextWidget extends StatelessWidget {
-  const NextWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          'Файл выбран! Загружаем...',
-          style: TextStyle(fontSize: 24),
         ),
       ),
     );
