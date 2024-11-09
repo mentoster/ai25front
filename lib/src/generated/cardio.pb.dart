@@ -14,21 +14,12 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class CardioRequest extends $pb.GeneratedMessage {
-  factory CardioRequest({
-    $core.String? clientId,
-  }) {
-    final $result = create();
-    if (clientId != null) {
-      $result.clientId = clientId;
-    }
-    return $result;
-  }
+  factory CardioRequest() => create();
   CardioRequest._() : super();
   factory CardioRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory CardioRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CardioRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'cardio'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'clientId')
     ..hasRequiredFields = false
   ;
 
@@ -52,15 +43,6 @@ class CardioRequest extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static CardioRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CardioRequest>(create);
   static CardioRequest? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get clientId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set clientId($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasClientId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearClientId() => clearField(1);
 }
 
 class CardioData extends $pb.GeneratedMessage {
@@ -290,10 +272,30 @@ class SetFileToProcessRequest extends $pb.GeneratedMessage {
 class SetFileToProcessResponse extends $pb.GeneratedMessage {
   factory SetFileToProcessResponse({
     $core.bool? success,
+    $core.String? age,
+    $core.bool? pharm,
+    $core.String? label1,
+    $core.String? label2,
+    $core.String? label3,
   }) {
     final $result = create();
     if (success != null) {
       $result.success = success;
+    }
+    if (age != null) {
+      $result.age = age;
+    }
+    if (pharm != null) {
+      $result.pharm = pharm;
+    }
+    if (label1 != null) {
+      $result.label1 = label1;
+    }
+    if (label2 != null) {
+      $result.label2 = label2;
+    }
+    if (label3 != null) {
+      $result.label3 = label3;
     }
     return $result;
   }
@@ -303,6 +305,11 @@ class SetFileToProcessResponse extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SetFileToProcessResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'cardio'), createEmptyInstance: create)
     ..aOB(1, _omitFieldNames ? '' : 'success')
+    ..aOS(2, _omitFieldNames ? '' : 'age')
+    ..aOB(3, _omitFieldNames ? '' : 'pharm')
+    ..aOS(4, _omitFieldNames ? '' : 'label1')
+    ..aOS(5, _omitFieldNames ? '' : 'label2')
+    ..aOS(6, _omitFieldNames ? '' : 'label3')
     ..hasRequiredFields = false
   ;
 
@@ -335,6 +342,51 @@ class SetFileToProcessResponse extends $pb.GeneratedMessage {
   $core.bool hasSuccess() => $_has(0);
   @$pb.TagNumber(1)
   void clearSuccess() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get age => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set age($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasAge() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearAge() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.bool get pharm => $_getBF(2);
+  @$pb.TagNumber(3)
+  set pharm($core.bool v) { $_setBool(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasPharm() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPharm() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get label1 => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set label1($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasLabel1() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearLabel1() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get label2 => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set label2($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasLabel2() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearLabel2() => clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get label3 => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set label3($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasLabel3() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearLabel3() => clearField(6);
 }
 
 

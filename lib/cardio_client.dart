@@ -18,7 +18,7 @@ class CardioClient {
   }
 
   Future<bool> setWorkingDirectory(String workingDirectory) async {
-    // Use the generated field name here, e.g., 'workingDirectory' instead of 'working_directory'
+    // Updated field name to match proto3 syntax
     final request = SetWorkingDirectoryRequest()
       ..workingDirectory = workingDirectory;
     final response = await _client!.setWorkingDirectory(request);
@@ -26,16 +26,24 @@ class CardioClient {
     return response.success;
   }
 
-
   Future<bool> setFileToProcess(String fileToProcess) async {
+    // Updated field name to match proto3 syntax
     final request = SetFileToProcessRequest()..fileToProcess = fileToProcess;
     final response = await _client!.setFileToProcess(request);
+
+    // Print additional response details introduced in proto3
     print('Set file to process success: ${response.success}');
+    print('Age: ${response.age}');
+    print('Pharm: ${response.pharm}');
+    print('Label1: ${response.label1}');
+    print('Label2: ${response.label2}');
+    print('Label3: ${response.label3}');
+
     return response.success;
   }
 
   Stream<CardioData> streamCardioData(String clientId) {
-    final request = CardioRequest()..clientId = clientId;
+    final request = CardioRequest();
     return _client!.streamCardioData(request);
   }
 

@@ -16,14 +16,11 @@ import 'dart:typed_data' as $typed_data;
 @$core.Deprecated('Use cardioRequestDescriptor instead')
 const CardioRequest$json = {
   '1': 'CardioRequest',
-  '2': [
-    {'1': 'client_id', '3': 1, '4': 1, '5': 9, '10': 'clientId'},
-  ],
 };
 
 /// Descriptor for `CardioRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List cardioRequestDescriptor = $convert.base64Decode(
-    'Cg1DYXJkaW9SZXF1ZXN0EhsKCWNsaWVudF9pZBgBIAEoCVIIY2xpZW50SWQ=');
+    'Cg1DYXJkaW9SZXF1ZXN0');
 
 @$core.Deprecated('Use cardioDataDescriptor instead')
 const CardioData$json = {
@@ -86,10 +83,17 @@ const SetFileToProcessResponse$json = {
   '1': 'SetFileToProcessResponse',
   '2': [
     {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+    {'1': 'age', '3': 2, '4': 1, '5': 9, '10': 'age'},
+    {'1': 'pharm', '3': 3, '4': 1, '5': 8, '10': 'pharm'},
+    {'1': 'label1', '3': 4, '4': 1, '5': 9, '10': 'label1'},
+    {'1': 'label2', '3': 5, '4': 1, '5': 9, '10': 'label2'},
+    {'1': 'label3', '3': 6, '4': 1, '5': 9, '10': 'label3'},
   ],
 };
 
 /// Descriptor for `SetFileToProcessResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List setFileToProcessResponseDescriptor = $convert.base64Decode(
-    'ChhTZXRGaWxlVG9Qcm9jZXNzUmVzcG9uc2USGAoHc3VjY2VzcxgBIAEoCFIHc3VjY2Vzcw==');
+    'ChhTZXRGaWxlVG9Qcm9jZXNzUmVzcG9uc2USGAoHc3VjY2VzcxgBIAEoCFIHc3VjY2VzcxIQCg'
+    'NhZ2UYAiABKAlSA2FnZRIUCgVwaGFybRgDIAEoCFIFcGhhcm0SFgoGbGFiZWwxGAQgASgJUgZs'
+    'YWJlbDESFgoGbGFiZWwyGAUgASgJUgZsYWJlbDISFgoGbGFiZWwzGAYgASgJUgZsYWJlbDM=');
 
