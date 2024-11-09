@@ -8,12 +8,12 @@ class CardiogramChart extends StatelessWidget {
   final Color color;
 
   const CardiogramChart({
-    Key? key,
+    super.key,
     required this.cardiogramData,
     required this.sliderPosition,
     required this.visibleRange,
     this.color = Colors.redAccent,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +63,8 @@ class CardiogramChartWidget extends StatelessWidget {
             lineTouchData: _lineTouchData(),
             minX: sliderPosition,
             maxX: sliderPosition + visibleRange,
-            minY: -1,
-            maxY: 1,
+            minY: -2,
+            maxY: 2,
             titlesData: _buildTitlesData(),
             gridData: _buildGridData(),
             borderData: FlBorderData(show: false),
@@ -136,12 +136,12 @@ class CardiogramChartWidget extends StatelessWidget {
 Widget leftTitleWidgets(double value, TitleMeta meta) {
   const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 15);
   switch (value.toInt()) {
-    case -1:
-      return Text('-1', style: style);
+    case -2:
+      return Text('-2', style: style);
     case 0:
       return Text('0', style: style);
-    case 1:
-      return Text('1', style: style);
+    case 2:
+      return Text('2', style: style);
     default:
       return Container();
   }

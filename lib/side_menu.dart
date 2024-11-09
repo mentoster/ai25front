@@ -37,8 +37,8 @@ class _SideMenuState extends State<SideMenu> {
             child: ListView(
               children: [
                 _buildMenuItem(
-                  icon: Icons.folder,
-                  text: isCollapsed ? '' : 'Выбрать директорию',
+                  icon: Icons.save,
+                  text: isCollapsed ? '' : 'Выбрать директорию для сохранения',
                   onTap: () async {
                     String? selectedDirectory =
                         await FilePicker.platform.getDirectoryPath();
@@ -50,7 +50,7 @@ class _SideMenuState extends State<SideMenu> {
                 ),
                 _buildMenuItem(
                   icon: Icons.file_present,
-                  text: isCollapsed ? '' : 'Выбрать файл',
+                  text: isCollapsed ? '' : 'Выбрать файл для обработки',
                   onTap: () async {
                     FilePickerResult? result =
                         await FilePicker.platform.pickFiles();

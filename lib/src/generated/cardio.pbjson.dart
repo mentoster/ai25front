@@ -30,14 +30,17 @@ const CardioData$json = {
   '1': 'CardioData',
   '2': [
     {'1': 'timestamp', '3': 1, '4': 1, '5': 5, '10': 'timestamp'},
-    {'1': 'vector', '3': 2, '4': 3, '5': 2, '10': 'vector'},
+    {'1': 'vector1', '3': 2, '4': 3, '5': 2, '10': 'vector1'},
+    {'1': 'vector2', '3': 3, '4': 3, '5': 2, '10': 'vector2'},
+    {'1': 'vector3', '3': 4, '4': 3, '5': 2, '10': 'vector3'},
   ],
 };
 
 /// Descriptor for `CardioData`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List cardioDataDescriptor = $convert.base64Decode(
-    'CgpDYXJkaW9EYXRhEhwKCXRpbWVzdGFtcBgBIAEoBVIJdGltZXN0YW1wEhYKBnZlY3RvchgCIA'
-    'MoAlIGdmVjdG9y');
+    'CgpDYXJkaW9EYXRhEhwKCXRpbWVzdGFtcBgBIAEoBVIJdGltZXN0YW1wEhgKB3ZlY3RvcjEYAi'
+    'ADKAJSB3ZlY3RvcjESGAoHdmVjdG9yMhgDIAMoAlIHdmVjdG9yMhIYCgd2ZWN0b3IzGAQgAygC'
+    'Ugd2ZWN0b3Iz');
 
 @$core.Deprecated('Use setWorkingDirectoryRequestDescriptor instead')
 const SetWorkingDirectoryRequest$json = {

@@ -5,21 +5,27 @@ import 'cardiogram_chart.dart';
 import 'package:ai25front/cardio_client.dart';
 import 'package:ai25front/src/generated/cardio.pb.dart';
 
+class ChannelData {
+  final String name;
+  final Color color;
+  final List<FlSpot> data;
+
+  ChannelData({required this.name, required this.color})
+      : data = [FlSpot(0, 0)];
+}
+
 class MultiCardiogramChart extends StatefulWidget {
   @override
   _MultiCardiogramChartState createState() => _MultiCardiogramChartState();
 }
 
 class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
-  final List<FlSpot> _dataChart1 = [];
-  final List<FlSpot> _dataChart2 = [];
-  final List<FlSpot> _dataChart3 = [];
+  final List<ChannelData> _availableChannels = [];
+  final Set<String> _selectedChannelNames = {};
   late CardioClient _client;
   StreamSubscription<CardioData>? _dataSubscription;
 
   double _sliderPosition = 0;
-
-  // Make _visibleRange mutable and add initial value
   double _visibleRange = 5000;
   double _maxSliderPosition = 5000;
   final double maxRange = 10000;
@@ -32,15 +38,20 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
   @override
   void initState() {
     super.initState();
-    _initializeData();
+    _initializeChannels();
     _connectToServer();
   }
 
-  void _initializeData() {
-    _dataChart1.add(FlSpot(0, 0));
-    _dataChart2.add(FlSpot(0, 0));
-    _dataChart3.add(FlSpot(0, 0));
-    _xValue = _dataChart1.length.toDouble();
+  void _initializeChannels() {
+    _availableChannels.addAll([
+      ChannelData(name: 'Канал 1', color: Colors.redAccent),
+      ChannelData(name: 'Канал 2', color: Colors.blueAccent),
+      ChannelData(name: 'Канал 3', color: Colors.greenAccent),
+      // Add more channels if needed
+    ]);
+
+    // By default, select all channels
+    _selectedChannelNames.addAll(_availableChannels.map((c) => c.name));
   }
 
   void _connectToServer() {
@@ -51,44 +62,70 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
   void _subscribeToData() {
     _dataSubscription = _client.streamCardioData("flutter_client").listen(
       (data) {
-        _updateChartData(data.vector);
+        _updateChartData(data);
       },
     );
     setState(() {
       _isStreaming = true;
     });
   }
-
-  void _updateChartData(List<double> vector) {
+void _updateChartData(CardioData data) {
     setState(() {
-      final newPoints =
-          vector.map((value) => FlSpot(_xValue++, value)).toList();
+      print("Updating chart data...");
 
-      _dataChart1.addAll(newPoints);
-      _dataChart2.addAll(newPoints);
-      _dataChart3.addAll(newPoints);
+      for (final channel in _availableChannels) {
+        List<double> vectorData;
 
-      const deleteRange = 20000;
-      if (_dataChart1.length > deleteRange) {
-        int pointsToRemove = _dataChart1.length - deleteRange;
-        _dataChart1.removeRange(0, pointsToRemove);
-        _dataChart2.removeRange(0, pointsToRemove);
-        _dataChart3.removeRange(0, pointsToRemove);
-        _xOffset += pointsToRemove.toDouble();
+        // Determine the vector data based on the channel name
+        switch (channel.name) {
+          case 'Канал 1':
+            vectorData = data.vector1;
+            break;
+          case 'Канал 2':
+            vectorData = data.vector2;
+            break;
+          case 'Канал 3':
+            vectorData = data.vector3;
+            break;
+          default:
+            vectorData = [];
+            break;
+        }
+
+        // Map the incoming data to FlSpot points and add to channel data
+        final newPoints =
+            vectorData.map((value) => FlSpot(_xValue++, value)).toList();
+        channel.data.addAll(newPoints);
+
+        // Remove old data if it exceeds the delete range
+        const deleteRange = 20000;
+        int pointsToRemove = channel.data.length - deleteRange;
+        if (pointsToRemove > 0 && pointsToRemove < channel.data.length) {
+          channel.data.removeRange(0, pointsToRemove);
+        }
       }
 
-      _maxSliderPosition =
-          _xOffset + (_dataChart1.isNotEmpty ? _dataChart1.last.x : 0);
+      // Calculate _xOffset based on the minimum x value across all channels
+      _xOffset = _availableChannels
+          .where((channel) => channel.data.isNotEmpty)
+          .map((channel) => channel.data.first.x)
+          .reduce((a, b) => a < b ? a : b);
 
+      // Calculate _maxSliderPosition based on the last x value across all channels
+      _maxSliderPosition = _availableChannels
+          .where((channel) => channel.data.isNotEmpty)
+          .map((channel) => channel.data.last.x)
+          .reduce((a, b) => a > b ? a : b);
+
+      // Update the slider position if auto-scrolling is enabled
       if (_isAutoScroll) {
-        _sliderPosition = _maxSliderPosition - _visibleRange;
-        if (_sliderPosition < _xOffset) {
-          _sliderPosition = _xOffset;
-        }
+        _sliderPosition = (_maxSliderPosition - _visibleRange)
+            .clamp(_xOffset, _maxSliderPosition);
       }
 
     });
   }
+
 
   @override
   void dispose() {
@@ -100,7 +137,8 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
   void _onPositionSliderChange(double value) {
     setState(() {
       _stopStreaming();
-      _sliderPosition = value;
+      _sliderPosition =
+          value.clamp(_xOffset, _maxSliderPosition - _visibleRange);
       _isAutoScroll = (_sliderPosition >= (_maxSliderPosition - _visibleRange));
     });
   }
@@ -126,31 +164,51 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Three charts, each with a unique color and its own dataset
-        Expanded(
-          child: CardiogramChart(
-            color: Colors.redAccent,
-            sliderPosition: _sliderPosition,
-            visibleRange: _visibleRange,
-            cardiogramData: _dataChart1,
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Wrap(
+            spacing: 8.0,
+            children: _availableChannels.map((channel) {
+              return FilterChip(
+                label: Text(channel.name),
+                selected: _selectedChannelNames.contains(channel.name),
+                onSelected: (isSelected) {
+                  setState(() {
+                    if (isSelected) {
+                      _selectedChannelNames.add(channel.name);
+                    } else {
+                      _selectedChannelNames.remove(channel.name);
+                    }
+                  });
+                },
+                backgroundColor: Colors.grey[300],
+                selectedColor: channel.color.withOpacity(0.3),
+                checkmarkColor: channel.color,
+              );
+            }).toList(),
           ),
         ),
         Expanded(
-          child: CardiogramChart(
-            color: Colors.blueAccent,
-            sliderPosition: _sliderPosition,
-            visibleRange: _visibleRange,
-            cardiogramData: _dataChart2,
+          child: ListView(
+            children: _availableChannels
+                .where(
+                    (channel) => _selectedChannelNames.contains(channel.name))
+                .map((channel) => SizedBox(
+                      height: 200,
+                      child: CardiogramChart(
+                        color: channel.color,
+                        sliderPosition: _sliderPosition,
+                        visibleRange: _visibleRange,
+                        cardiogramData: channel.data,
+                      ),
+                    ))
+                .toList(),
           ),
         ),
-        Expanded(
-          child: CardiogramChart(
-            color: Colors.greenAccent,
-            sliderPosition: _sliderPosition,
-            visibleRange: _visibleRange,
-            cardiogramData: _dataChart3,
-          ),
-        ),
+        const SizedBox(height: 16),
+        // Channel selection chips at the bottom of the screen
+
+        const SizedBox(height: 16),
         // Common slider and control buttons
         Padding(
           padding: const EdgeInsets.all(16.0),
@@ -161,7 +219,7 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Position',
+                    'Позиция',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -171,9 +229,8 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
                     value: _sliderPosition.clamp(
                         _xOffset, _maxSliderPosition - _visibleRange),
                     min: _xOffset,
-                    max: _maxSliderPosition - _visibleRange > _xOffset
-                        ? _maxSliderPosition - _visibleRange
-                        : _xOffset,
+                    max: (_maxSliderPosition - _visibleRange)
+                        .clamp(_xOffset, double.infinity),
                     onChanged: (_maxSliderPosition - _visibleRange > _xOffset)
                         ? _onPositionSliderChange
                         : null,

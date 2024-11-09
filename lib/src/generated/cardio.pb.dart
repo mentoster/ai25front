@@ -66,14 +66,22 @@ class CardioRequest extends $pb.GeneratedMessage {
 class CardioData extends $pb.GeneratedMessage {
   factory CardioData({
     $core.int? timestamp,
-    $core.Iterable<$core.double>? vector,
+    $core.Iterable<$core.double>? vector1,
+    $core.Iterable<$core.double>? vector2,
+    $core.Iterable<$core.double>? vector3,
   }) {
     final $result = create();
     if (timestamp != null) {
       $result.timestamp = timestamp;
     }
-    if (vector != null) {
-      $result.vector.addAll(vector);
+    if (vector1 != null) {
+      $result.vector1.addAll(vector1);
+    }
+    if (vector2 != null) {
+      $result.vector2.addAll(vector2);
+    }
+    if (vector3 != null) {
+      $result.vector3.addAll(vector3);
     }
     return $result;
   }
@@ -83,7 +91,9 @@ class CardioData extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CardioData', package: const $pb.PackageName(_omitMessageNames ? '' : 'cardio'), createEmptyInstance: create)
     ..a<$core.int>(1, _omitFieldNames ? '' : 'timestamp', $pb.PbFieldType.O3)
-    ..p<$core.double>(2, _omitFieldNames ? '' : 'vector', $pb.PbFieldType.KF)
+    ..p<$core.double>(2, _omitFieldNames ? '' : 'vector1', $pb.PbFieldType.KF)
+    ..p<$core.double>(3, _omitFieldNames ? '' : 'vector2', $pb.PbFieldType.KF)
+    ..p<$core.double>(4, _omitFieldNames ? '' : 'vector3', $pb.PbFieldType.KF)
     ..hasRequiredFields = false
   ;
 
@@ -118,7 +128,13 @@ class CardioData extends $pb.GeneratedMessage {
   void clearTimestamp() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.List<$core.double> get vector => $_getList(1);
+  $core.List<$core.double> get vector1 => $_getList(1);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.double> get vector2 => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.List<$core.double> get vector3 => $_getList(3);
 }
 
 class SetWorkingDirectoryRequest extends $pb.GeneratedMessage {
