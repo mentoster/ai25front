@@ -34,7 +34,7 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
 
   double _xValue = 0;
   double _xOffset = 0;
-
+bool _isMouseCardCreated = false;
   @override
   void initState() {
     super.initState();
@@ -166,70 +166,170 @@ void _updateChartData(CardioData data) {
       // to left align the content
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Выбор канала',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+        Row(
+          children: [
+            SizedBox(
+                width: 500, // Установите ширину для всей формы
+                child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Информация о пациенте',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              // Поля в горизонтальном `Row`
+                              Row(
+                                children: [
+                                  // Поле для возраста
+                                  Expanded(
+                                    flex: 2,
+                                    child: TextField(
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                        labelText: 'Возраст',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  // Поле для выбора пола
+                                  Expanded(
+                                    flex: 2,
+                                    child: DropdownButtonFormField<String>(
+                                      decoration: InputDecoration(
+                                        labelText: 'Пол',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                        ),
+                                      ),
+                                      items: ['Мужской', 'Женский']
+                                          .map((String gender) =>
+                                              DropdownMenuItem<String>(
+                                                value: gender,
+                                                child: Text(gender),
+                                              ))
+                                          .toList(),
+                                      onChanged: (String? value) {
+                                        // Логика обработки выбора пола
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  // Boolean переключатель
+                                  Expanded(
+                                    flex: 2,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            'Есть карта',
+                                            style: TextStyle(fontSize: 14),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        Switch(
+                                          value: _isMouseCardCreated,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              _isMouseCardCreated = value;
+                                            });
+                                          },
+                                          activeColor: Colors.blueAccent,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ])))),
+            SizedBox(
+              height: 128,
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 12.0, horizontal: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Выбор канала',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8.0,
+                        children: _availableChannels.map((channel) {
+                          return FilterChip(
+                            label: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.circle,
+                                  color: channel.color,
+                                  size: 12,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  channel.name,
+                                  style: TextStyle(color: Colors.black87),
+                                ),
+                              ],
+                            ),
+                            selected:
+                                _selectedChannelNames.contains(channel.name),
+                            onSelected: (isSelected) {
+                              setState(() {
+                                if (isSelected) {
+                                  _selectedChannelNames.add(channel.name);
+                                } else {
+                                  _selectedChannelNames.remove(channel.name);
+                                }
+                              });
+                            },
+                            backgroundColor: Colors.grey[200],
+                            selectedColor: channel.color.withOpacity(0.3),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16.0),
+                            ),
+                            checkmarkColor: channel.color,
+                            side: BorderSide(
+                              color: channel.color.withOpacity(0.7),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8.0,
-                  children: _availableChannels.map((channel) {
-                    return FilterChip(
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.circle,
-                            color: channel.color,
-                            size: 12,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            channel.name,
-                            style: TextStyle(color: Colors.black87),
-                          ),
-                        ],
-                      ),
-                      selected: _selectedChannelNames.contains(channel.name),
-                      onSelected: (isSelected) {
-                        setState(() {
-                          if (isSelected) {
-                            _selectedChannelNames.add(channel.name);
-                          } else {
-                            _selectedChannelNames.remove(channel.name);
-                          }
-                        });
-                      },
-                      backgroundColor: Colors.grey[200],
-                      selectedColor: channel.color.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      checkmarkColor: channel.color,
-                      side: BorderSide(
-                        color: channel.color.withOpacity(0.7),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
         Expanded(
           child: SingleChildScrollView(
