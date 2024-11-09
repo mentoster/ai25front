@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'dart:async';
 
 class CardiogramChart extends StatelessWidget {
   final List<FlSpot> cardiogramData;
@@ -52,6 +53,78 @@ class CardiogramChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Define the start time for the chart
+    final DateTime startTime = DateTime.now();
+
+    // Define the interval for vertical lines
+    const int interval = 1500;
+
+    // Calculate the number of vertical lines based on the visible range
+    final int numberOfLines = (visibleRange / interval).ceil();
+
+    // Generate vertical lines at every 300 x units
+    List<VerticalLine> verticalLines = [];
+    for (int i = 1; i <= numberOfLines; i++) {
+      double xPosition = sliderPosition + (i * interval);
+
+      // Ensure the xPosition does not exceed the maxX
+      if (xPosition > sliderPosition + visibleRange) break;
+      // Calculate the corresponding time for the label
+      Duration labelDuration = Duration(seconds: (xPosition / 400).toInt());
+
+      // Format the time as desired, e.g., "HH:mm:ss"
+      String formattedTime = [
+        labelDuration.inHours.toString().padLeft(2, '0'),
+        (labelDuration.inMinutes % 60).toString().padLeft(2, '0'),
+        (labelDuration.inSeconds % 60).toString().padLeft(2, '0')
+      ].join(':');
+
+      // Add the VerticalLine with the label
+      verticalLines.add(
+        VerticalLine(
+          x: xPosition,
+          color: Colors.grey.withOpacity(0.5),
+          strokeWidth: 1,
+          dashArray: [5, 5],
+          label: VerticalLineLabel(
+            show: true,
+            alignment: Alignment.bottomCenter,
+            padding: const EdgeInsets.only(top: 5),
+            style: const TextStyle(
+              fontSize: 10,
+              color: Colors.black,
+            ),
+            direction: LabelDirection.horizontal,
+            labelResolver: (line) => formattedTime,
+          ),
+        ),
+      );
+    }
+
+    // Optionally, include an initial vertical line at the start position
+    verticalLines.add(
+      VerticalLine(
+        x: sliderPosition,
+        color: Colors.grey.withOpacity(0.5),
+        strokeWidth: 1,
+        dashArray: [5, 5],
+        label: VerticalLineLabel(
+          show: true,
+          alignment: Alignment.bottomCenter,
+          padding: const EdgeInsets.only(top: 5),
+          style: const TextStyle(
+            fontSize: 10,
+            color: Colors.black,
+          ),
+          direction: LabelDirection.horizontal,
+          labelResolver: (line) {
+            DateTime initialLabelTime = startTime;
+            return "${initialLabelTime.hour.toString().padLeft(2, '0')}:${initialLabelTime.minute.toString().padLeft(2, '0')}:${initialLabelTime.second.toString().padLeft(2, '0')}";
+          },
+        ),
+      ),
+    );
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(12.0),
       child: Padding(
@@ -60,6 +133,9 @@ class CardiogramChartWidget extends StatelessWidget {
           duration: const Duration(milliseconds: 0),
           curve: Curves.linear,
           LineChartData(
+            extraLinesData: ExtraLinesData(
+              verticalLines: verticalLines,
+            ),
             lineTouchData: _lineTouchData(),
             minX: sliderPosition,
             maxX: sliderPosition + visibleRange,
