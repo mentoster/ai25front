@@ -55,7 +55,7 @@ class _MyAppState extends State<MyApp> {
       title: 'Крыски',
       theme: mytheme,
       home: Scaffold(
-        appBar: AppBar(title: const Text('Кардиограмма')),
+        appBar: AppBar(title: const Text('Крыски')),
         body: Center(
           child: _isExeStarted
               ? const Padding(

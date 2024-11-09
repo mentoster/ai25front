@@ -16,13 +16,14 @@ class _CardiogramChartState extends State<CardiogramChart> {
   late CardioClient _client;
   StreamSubscription<CardioData>? _dataSubscription;
 
-  // Slider position and range
   double _sliderPosition = 0;
-  final double _visibleRange = 1000;
-  bool _isAutoScroll = true; // Auto-scroll mode
+  final double _visibleRange = 5000;
+  bool _isAutoScroll = true;
+  bool _isStreaming = true;
+  Timer? _sliderInteractionTimer;
 
-  // X-value counter to keep track of the total data points
   double _xValue = 0;
+  double _xOffset = 0;
 
   @override
   void initState() {
@@ -31,45 +32,42 @@ class _CardiogramChartState extends State<CardiogramChart> {
     _connectToServer();
   }
 
-  // Initialize with dummy data
   void _initializeData() {
-    _cardiogramData.addAll(
-      List.generate(1, (index) => FlSpot(index.toDouble(), 0)),
-    );
+    _cardiogramData.add(FlSpot(0, 0));
     _xValue = _cardiogramData.length.toDouble();
   }
 
-  // Establish a connection to the gRPC server and start receiving data
   void _connectToServer() {
-    _client = CardioClient('localhost', 50051); // Use server IP in production
-    _dataSubscription = _client.streamCardioData("flutter_client").listen(
-      (data) {
-        _updateChartData(data.vector);
-      },
-    );
+    _client = CardioClient('localhost', 50051);
+    _subscribeToData();
   }
 
-  // Update the chart with new data received from the server
+  void _subscribeToData() {
+    _dataSubscription = _client.streamCardioData("flutter_client").listen(
+          (data) => _updateChartData(data.vector),
+        );
+    setState(() {
+      _isStreaming = true;
+    });
+  }
+
   void _updateChartData(List<double> vector) {
     setState(() {
-      // Generate new points with correct x-values
-      final newPoints = vector.map((value) {
-        final point = FlSpot(_xValue, value);
-        _xValue += 1;
-        return point;
-      }).toList();
-
+      final newPoints =
+          vector.map((value) => FlSpot(_xValue++, value)).toList();
       _cardiogramData.addAll(newPoints);
 
-      // Limit the data to the latest 1000 points
-      // if (_cardiogramData.length > 1000) {
-      //   _cardiogramData.removeRange(0, _cardiogramData.length - 1000);
-      //   // Adjust slider position if auto-scroll is enabled
-      // }
+      const deleteRange = 20000;
+      if (_cardiogramData.length > deleteRange) {
+        int pointsToRemove = _cardiogramData.length - deleteRange;
+        _cardiogramData.removeRange(0, pointsToRemove);
+        _xOffset += pointsToRemove.toDouble();
+        _sliderPosition =
+            (_sliderPosition - pointsToRemove).clamp(0, double.infinity);
+      }
 
-      // Adjust slider position if auto-scroll is enabled
       if (_isAutoScroll) {
-        _sliderPosition = _xValue - _visibleRange;
+        _sliderPosition = _xValue - _xOffset - _visibleRange;
       }
     });
   }
@@ -78,13 +76,14 @@ class _CardiogramChartState extends State<CardiogramChart> {
   void dispose() {
     _dataSubscription?.cancel();
     _client.shutdown();
+    _sliderInteractionTimer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final double maxSliderPosition =
-        (_xValue - _visibleRange).clamp(0, double.infinity);
+        (_xValue - _xOffset - _visibleRange).clamp(0, double.infinity);
 
     return Column(
       children: [
@@ -97,6 +96,7 @@ class _CardiogramChartState extends State<CardiogramChart> {
                   cardiogramData: _cardiogramData,
                   sliderPosition: _sliderPosition,
                   visibleRange: _visibleRange,
+                  xOffset: _xOffset,
                 ),
                 SliderWidget(
                   sliderPosition: _sliderPosition,
@@ -105,11 +105,21 @@ class _CardiogramChartState extends State<CardiogramChart> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    onPressed: _stopStreaming,
-                    child: const Text('Остановить'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _stopStreaming,
+                        child: const Text('Остановить'),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton(
+                        onPressed: _isStreaming ? null : _resumeStreaming,
+                        child: const Text('Продолжить'),
+                      ),
+                    ],
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -118,19 +128,33 @@ class _CardiogramChartState extends State<CardiogramChart> {
     );
   }
 
-  // Slider change handler
   void _onSliderChange(double value) {
+    // Остановим поток при перемещении слайдера
+    _stopStreaming();
+
     setState(() {
       _sliderPosition = value;
-      // Disable auto-scroll if the user changes the slider position
-      _isAutoScroll = (_sliderPosition >= _xValue - _visibleRange);
+      _isAutoScroll = (_sliderPosition >= _xValue - _xOffset - _visibleRange);
+    });
+
+    // Если происходит быстрое перемещение, отменим предыдущий таймер
+    _sliderInteractionTimer?.cancel();
+
+    // Установим таймер для возобновления потока через 1 секунду после окончания взаимодействия
+    _sliderInteractionTimer = Timer(const Duration(seconds: 1), () {
+      _resumeStreaming();
     });
   }
 
-  // Stop streaming data from the server
   Future<void> _stopStreaming() async {
     await _dataSubscription?.cancel();
-    await _client.shutdown();
+    setState(() {
+      _isStreaming = false;
+    });
+  }
+
+  void _resumeStreaming() {
+    _subscribeToData();
   }
 }
 
@@ -138,12 +162,14 @@ class CardiogramChartWidget extends StatelessWidget {
   final List<FlSpot> cardiogramData;
   final double sliderPosition;
   final double visibleRange;
+  final double xOffset;
 
   const CardiogramChartWidget({
     super.key,
     required this.cardiogramData,
     required this.sliderPosition,
     required this.visibleRange,
+    required this.xOffset,
   });
 
   @override
@@ -162,69 +188,23 @@ class CardiogramChartWidget extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: LineChart(
+              duration: const Duration(milliseconds: 0),
+              curve: Curves.linear,
               LineChartData(
-                lineTouchData: LineTouchData(
-                    touchTooltipData: LineTouchTooltipData(
-                  getTooltipColor: (touchedSpot) => Colors.white.withOpacity(1),
-                  // add black border
-                  tooltipBorder: BorderSide(color: Colors.blue, width: 1),
-                  // make text black
-                  getTooltipItems: (touchedSpots) {
-                    return touchedSpots.map((LineBarSpot touchedSpot) {
-                      final flSpot = touchedSpot;
-                      if (flSpot.x == 0 || flSpot.x == 1) {
-                        return null;
-                      }
-                      return LineTooltipItem(
-                        '${flSpot.y.toStringAsFixed(5)}',
-                        const TextStyle(color: Colors.black),
-                      );
-                    }).toList();
-                  },
-                )),
-                minX: sliderPosition,
-                maxX: sliderPosition + visibleRange,
-                minY: -0.5,
+                lineTouchData: _lineTouchData(),
+                minX: sliderPosition + xOffset,
+                maxX: sliderPosition + xOffset + visibleRange,
+                minY: -1,
                 maxY: 1,
-                titlesData: const FlTitlesData(
-                  show: true,
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      interval: 1,
-                      getTitlesWidget: leftTitleWidgets,
-                      reservedSize: 42,
-                    ),
-                  ),
-                  rightTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  getDrawingHorizontalLine: (value) => FlLine(
-                    color: Colors.grey.withOpacity(0.2),
-                    strokeWidth: 1,
-                  ),
-                  getDrawingVerticalLine: (value) => FlLine(
-                    color: Colors.grey.withOpacity(0.2),
-                    strokeWidth: 1,
-                  ),
-                ),
-
+                titlesData: _buildTitlesData(),
+                gridData: _buildGridData(),
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
                     spots: cardiogramData,
-                    isCurved: true,
+                    isCurved: false,
                     color: Colors.redAccent,
-                    barWidth: 2,
+                    barWidth: 1,
                     isStrokeCapRound: true,
                     dotData: const FlDotData(show: false),
                   ),
@@ -233,6 +213,54 @@ class CardiogramChartWidget extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  LineTouchData _lineTouchData() {
+    return LineTouchData(
+      touchTooltipData: LineTouchTooltipData(
+        getTooltipColor: (_) => Colors.white,
+        tooltipBorder: BorderSide(color: Colors.blue, width: 1),
+        getTooltipItems: (touchedSpots) {
+          return touchedSpots
+              .map((spot) => LineTooltipItem(
+                    '${spot.y.toStringAsFixed(5)}',
+                    const TextStyle(color: Colors.black),
+                  ))
+              .toList();
+        },
+      ),
+    );
+  }
+
+  FlTitlesData _buildTitlesData() {
+    return const FlTitlesData(
+      show: true,
+      leftTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          interval: 1,
+          getTitlesWidget: leftTitleWidgets,
+          reservedSize: 42,
+        ),
+      ),
+      rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+    );
+  }
+
+  FlGridData _buildGridData() {
+    return FlGridData(
+      show: true,
+      getDrawingHorizontalLine: (value) => FlLine(
+        color: Colors.grey.withOpacity(0.2),
+        strokeWidth: 1,
+      ),
+      getDrawingVerticalLine: (value) => FlLine(
+        color: Colors.grey.withOpacity(0.2),
+        strokeWidth: 1,
       ),
     );
   }
@@ -252,46 +280,27 @@ class SliderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliderTheme(
-      data: SliderTheme.of(context).copyWith(
-        inactiveTrackColor: Colors.grey,
-        activeTrackColor: Colors.blue,
-        thumbColor: Colors.blueAccent,
-        overlayColor: Colors.blue.withAlpha(32),
-        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10.0),
-        overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
-      ),
-      child: Slider(
-        value: sliderPosition.clamp(0, maxSliderPosition),
-        min: 0,
-        max: maxSliderPosition > 0 ? maxSliderPosition : 0,
-        onChanged: (maxSliderPosition > 0)
-            ? onChanged
-            : null, // Disable the slider if there's not enough data15
-      ),
+    return Slider(
+      value: sliderPosition.clamp(0, maxSliderPosition),
+      min: 0,
+      max: maxSliderPosition,
+      onChanged: (maxSliderPosition > 0) ? onChanged : null,
+      inactiveColor: Colors.grey,
+      activeColor: Colors.blue,
     );
   }
 }
 
 Widget leftTitleWidgets(double value, TitleMeta meta) {
-  const style = TextStyle(
-    fontWeight: FontWeight.bold,
-    fontSize: 15,
-  );
-  String text;
-  switch (value) {
-    case -0.5:
-      text = '-0.5';
-      break;
+  const style = TextStyle(fontWeight: FontWeight.bold, fontSize: 15);
+  switch (value.toInt()) {
+    case -1:
+      return Text('-1', style: style);
     case 0:
-      text = '0';
-      break;
+      return Text('0', style: style);
     case 1:
-      text = '1';
-      break;
+      return Text('1', style: style);
     default:
       return Container();
   }
-
-  return Text(text, style: style, textAlign: TextAlign.left);
 }
