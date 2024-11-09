@@ -18,7 +18,7 @@ class _CardiogramChartState extends State<CardiogramChart> {
 
   // Slider position and range
   double _sliderPosition = 0;
-  final double _visibleRange = 100;
+  final double _visibleRange = 1000;
   bool _isAutoScroll = true; // Auto-scroll mode
 
   // X-value counter to keep track of the total data points
@@ -34,7 +34,7 @@ class _CardiogramChartState extends State<CardiogramChart> {
   // Initialize with dummy data
   void _initializeData() {
     _cardiogramData.addAll(
-      List.generate(10, (index) => FlSpot(index.toDouble(), 0)),
+      List.generate(1, (index) => FlSpot(index.toDouble(), 0)),
     );
     _xValue = _cardiogramData.length.toDouble();
   }
@@ -62,9 +62,10 @@ class _CardiogramChartState extends State<CardiogramChart> {
       _cardiogramData.addAll(newPoints);
 
       // Limit the data to the latest 1000 points
-      if (_cardiogramData.length > 1000) {
-        _cardiogramData.removeRange(0, _cardiogramData.length - 1000);
-      }
+      // if (_cardiogramData.length > 1000) {
+      //   _cardiogramData.removeRange(0, _cardiogramData.length - 1000);
+      //   // Adjust slider position if auto-scroll is enabled
+      // }
 
       // Adjust slider position if auto-scroll is enabled
       if (_isAutoScroll) {
@@ -162,6 +163,25 @@ class CardiogramChartWidget extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: LineChart(
               LineChartData(
+                lineTouchData: LineTouchData(
+                    touchTooltipData: LineTouchTooltipData(
+                  getTooltipColor: (touchedSpot) => Colors.white.withOpacity(1),
+                  // add black border
+                  tooltipBorder: BorderSide(color: Colors.blue, width: 1),
+                  // make text black
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((LineBarSpot touchedSpot) {
+                      final flSpot = touchedSpot;
+                      if (flSpot.x == 0 || flSpot.x == 1) {
+                        return null;
+                      }
+                      return LineTooltipItem(
+                        '${flSpot.y.toStringAsFixed(5)}',
+                        const TextStyle(color: Colors.black),
+                      );
+                    }).toList();
+                  },
+                )),
                 minX: sliderPosition,
                 maxX: sliderPosition + visibleRange,
                 minY: -0.5,
@@ -197,6 +217,7 @@ class CardiogramChartWidget extends StatelessWidget {
                     strokeWidth: 1,
                   ),
                 ),
+
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
@@ -258,7 +279,6 @@ Widget leftTitleWidgets(double value, TitleMeta meta) {
     fontSize: 15,
   );
   String text;
-  print(value);
   switch (value) {
     case -0.5:
       text = '-0.5';
