@@ -171,6 +171,156 @@ class SetWorkingDirectoryRequest extends $pb.GeneratedMessage {
   void clearWorkingDirectory() => clearField(1);
 }
 
+class SetWorkingDirectoryResponse extends $pb.GeneratedMessage {
+  factory SetWorkingDirectoryResponse({
+    $core.bool? success,
+  }) {
+    final $result = create();
+    if (success != null) {
+      $result.success = success;
+    }
+    return $result;
+  }
+  SetWorkingDirectoryResponse._() : super();
+  factory SetWorkingDirectoryResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SetWorkingDirectoryResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SetWorkingDirectoryResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'cardio'), createEmptyInstance: create)
+    ..aOB(1, _omitFieldNames ? '' : 'success')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SetWorkingDirectoryResponse clone() => SetWorkingDirectoryResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SetWorkingDirectoryResponse copyWith(void Function(SetWorkingDirectoryResponse) updates) => super.copyWith((message) => updates(message as SetWorkingDirectoryResponse)) as SetWorkingDirectoryResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SetWorkingDirectoryResponse create() => SetWorkingDirectoryResponse._();
+  SetWorkingDirectoryResponse createEmptyInstance() => create();
+  static $pb.PbList<SetWorkingDirectoryResponse> createRepeated() => $pb.PbList<SetWorkingDirectoryResponse>();
+  @$core.pragma('dart2js:noInline')
+  static SetWorkingDirectoryResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SetWorkingDirectoryResponse>(create);
+  static SetWorkingDirectoryResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get success => $_getBF(0);
+  @$pb.TagNumber(1)
+  set success($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSuccess() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSuccess() => clearField(1);
+}
+
+class SetFileToProcessRequest extends $pb.GeneratedMessage {
+  factory SetFileToProcessRequest({
+    $core.String? fileToProcess,
+  }) {
+    final $result = create();
+    if (fileToProcess != null) {
+      $result.fileToProcess = fileToProcess;
+    }
+    return $result;
+  }
+  SetFileToProcessRequest._() : super();
+  factory SetFileToProcessRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SetFileToProcessRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SetFileToProcessRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'cardio'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'fileToProcess')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SetFileToProcessRequest clone() => SetFileToProcessRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SetFileToProcessRequest copyWith(void Function(SetFileToProcessRequest) updates) => super.copyWith((message) => updates(message as SetFileToProcessRequest)) as SetFileToProcessRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SetFileToProcessRequest create() => SetFileToProcessRequest._();
+  SetFileToProcessRequest createEmptyInstance() => create();
+  static $pb.PbList<SetFileToProcessRequest> createRepeated() => $pb.PbList<SetFileToProcessRequest>();
+  @$core.pragma('dart2js:noInline')
+  static SetFileToProcessRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SetFileToProcessRequest>(create);
+  static SetFileToProcessRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get fileToProcess => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set fileToProcess($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFileToProcess() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFileToProcess() => clearField(1);
+}
+
+class SetFileToProcessResponse extends $pb.GeneratedMessage {
+  factory SetFileToProcessResponse({
+    $core.bool? success,
+  }) {
+    final $result = create();
+    if (success != null) {
+      $result.success = success;
+    }
+    return $result;
+  }
+  SetFileToProcessResponse._() : super();
+  factory SetFileToProcessResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SetFileToProcessResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SetFileToProcessResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'cardio'), createEmptyInstance: create)
+    ..aOB(1, _omitFieldNames ? '' : 'success')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SetFileToProcessResponse clone() => SetFileToProcessResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SetFileToProcessResponse copyWith(void Function(SetFileToProcessResponse) updates) => super.copyWith((message) => updates(message as SetFileToProcessResponse)) as SetFileToProcessResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SetFileToProcessResponse create() => SetFileToProcessResponse._();
+  SetFileToProcessResponse createEmptyInstance() => create();
+  static $pb.PbList<SetFileToProcessResponse> createRepeated() => $pb.PbList<SetFileToProcessResponse>();
+  @$core.pragma('dart2js:noInline')
+  static SetFileToProcessResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SetFileToProcessResponse>(create);
+  static SetFileToProcessResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get success => $_getBF(0);
+  @$pb.TagNumber(1)
+  set success($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSuccess() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSuccess() => clearField(1);
+}
+
 
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
 const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');

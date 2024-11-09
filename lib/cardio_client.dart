@@ -1,30 +1,45 @@
 import 'dart:async';
+import 'package:ai25front/src/generated/cardio.pbgrpc.dart';
 import 'package:grpc/grpc.dart';
-import 'src/generated/cardio.pbgrpc.dart';
 
 class CardioClient {
-  late final CardioServiceClient stub;
-  final ClientChannel channel;
+  CardioServiceClient? _client;
+  ClientChannel? _channel;
 
-  CardioClient(String address, int port)
-      : channel = ClientChannel(
-          address,
-          port: port,
-          options:
-              const ChannelOptions(credentials: ChannelCredentials.insecure()),
-        ) {
-    stub = CardioServiceClient(channel);
+  CardioClient() {
+    _channel = ClientChannel(
+      'localhost',
+      port: 50051,
+      options: const ChannelOptions(
+        credentials: ChannelCredentials.insecure(),
+      ),
+    );
+    _client = CardioServiceClient(_channel!);
   }
 
-  Stream<CardioData> streamCardioData(String clientId) async* {
+  Future<bool> setWorkingDirectory(String workingDirectory) async {
+    // Use the generated field name here, e.g., 'workingDirectory' instead of 'working_directory'
+    final request = SetWorkingDirectoryRequest()
+      ..workingDirectory = workingDirectory;
+    final response = await _client!.setWorkingDirectory(request);
+    print('Set working directory success: ${response.success}');
+    return response.success;
+  }
+
+
+  Future<bool> setFileToProcess(String fileToProcess) async {
+    final request = SetFileToProcessRequest()..fileToProcess = fileToProcess;
+    final response = await _client!.setFileToProcess(request);
+    print('Set file to process success: ${response.success}');
+    return response.success;
+  }
+
+  Stream<CardioData> streamCardioData(String clientId) {
     final request = CardioRequest()..clientId = clientId;
-
-    await for (final data in stub.streamCardioData(request)) {
-      yield data;
-    }
+    return _client!.streamCardioData(request);
   }
 
-  Future<void> shutdown() async {
-    await channel.shutdown();
+  void close() {
+    _channel?.shutdown();
   }
 }

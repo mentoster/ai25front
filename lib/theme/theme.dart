@@ -44,6 +44,12 @@ final ThemeData mytheme = ThemeData(
         fontSize: 20.0, fontWeight: FontWeight.bold, color: primary),
     bodyMedium: TextStyle(fontSize: 16.0, color: dark),
   ),
+  sliderTheme: SliderThemeData(
+    activeTrackColor: primary,
+    inactiveTrackColor: dark,
+    thumbColor: primary,
+    overlayColor: primary.withOpacity(0.3),
+  ),
   colorScheme: const ColorScheme.light(
     primary: primary,
     secondary: accent,

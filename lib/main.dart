@@ -1,4 +1,6 @@
 import 'package:ai25front/cardiogram_chart.dart';
+import 'package:ai25front/multi_cardiogram_chart.dart';
+import 'package:ai25front/side_menu.dart';
 import 'package:ai25front/theme/theme.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -55,18 +57,18 @@ class _MyAppState extends State<MyApp> {
       title: 'Крыски',
       theme: mytheme,
       home: Scaffold(
-        appBar: AppBar(title: const Text('Крыски')),
-        body: Center(
-          child: _isExeStarted
-              ? const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: AspectRatio(
-                    aspectRatio: 2.0,
-                    child: CardiogramChart(),
+        body: _isExeStarted
+            ? Row(
+                children: [
+                  SideMenu(),
+                  Expanded(
+                    child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: MultiCardiogramChart()),
                   ),
-                )
-              : const CircularProgressIndicator(),
-        ),
+                ],
+              )
+            : Center(child: const CircularProgressIndicator()),
       ),
     );
   }

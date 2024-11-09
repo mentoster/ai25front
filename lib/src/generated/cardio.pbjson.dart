@@ -52,3 +52,41 @@ final $typed_data.Uint8List setWorkingDirectoryRequestDescriptor = $convert.base
     'ChpTZXRXb3JraW5nRGlyZWN0b3J5UmVxdWVzdBIrChF3b3JraW5nX2RpcmVjdG9yeRgBIAEoCV'
     'IQd29ya2luZ0RpcmVjdG9yeQ==');
 
+@$core.Deprecated('Use setWorkingDirectoryResponseDescriptor instead')
+const SetWorkingDirectoryResponse$json = {
+  '1': 'SetWorkingDirectoryResponse',
+  '2': [
+    {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+  ],
+};
+
+/// Descriptor for `SetWorkingDirectoryResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setWorkingDirectoryResponseDescriptor = $convert.base64Decode(
+    'ChtTZXRXb3JraW5nRGlyZWN0b3J5UmVzcG9uc2USGAoHc3VjY2VzcxgBIAEoCFIHc3VjY2Vzcw'
+    '==');
+
+@$core.Deprecated('Use setFileToProcessRequestDescriptor instead')
+const SetFileToProcessRequest$json = {
+  '1': 'SetFileToProcessRequest',
+  '2': [
+    {'1': 'file_to_process', '3': 1, '4': 1, '5': 9, '10': 'fileToProcess'},
+  ],
+};
+
+/// Descriptor for `SetFileToProcessRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setFileToProcessRequestDescriptor = $convert.base64Decode(
+    'ChdTZXRGaWxlVG9Qcm9jZXNzUmVxdWVzdBImCg9maWxlX3RvX3Byb2Nlc3MYASABKAlSDWZpbG'
+    'VUb1Byb2Nlc3M=');
+
+@$core.Deprecated('Use setFileToProcessResponseDescriptor instead')
+const SetFileToProcessResponse$json = {
+  '1': 'SetFileToProcessResponse',
+  '2': [
+    {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+  ],
+};
+
+/// Descriptor for `SetFileToProcessResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setFileToProcessResponseDescriptor = $convert.base64Decode(
+    'ChhTZXRGaWxlVG9Qcm9jZXNzUmVzcG9uc2USGAoHc3VjY2VzcxgBIAEoCFIHc3VjY2Vzcw==');
+
