@@ -38,7 +38,7 @@ class _SideMenuState extends State<SideMenu> {
               children: [
                 _buildMenuItem(
                   icon: Icons.save,
-                  text: isCollapsed ? '' : 'Выбрать директорию для сохранения',
+                  text: isCollapsed ? '' : 'Сохранить файл',
                   onTap: () async {
                     String? selectedDirectory =
                         await FilePicker.platform.getDirectoryPath();

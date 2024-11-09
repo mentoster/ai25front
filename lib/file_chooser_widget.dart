@@ -59,7 +59,7 @@ class _FileChooserWidgetState extends State<FileChooserWidget> {
             else ...[
               SizedBox(height: 20),
               Text(
-                'Welcome! Please choose a file to continue.',
+                'Добро пожаловать! Для старта выберите файл',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -70,7 +70,7 @@ class _FileChooserWidgetState extends State<FileChooserWidget> {
               Icon(
                 Icons.file_present,
                 size: 50,
-                color: Colors.blue,
+                color: Colors.grey,
               ),
               SizedBox(height: 20),
               ElevatedButton.icon(
@@ -79,7 +79,7 @@ class _FileChooserWidgetState extends State<FileChooserWidget> {
                 label: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                   child: Text(
-                    'Choose File',
+                    'Выбрать файл',
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
