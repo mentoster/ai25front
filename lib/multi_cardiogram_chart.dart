@@ -86,6 +86,7 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
           _sliderPosition = _xOffset;
         }
       }
+
     });
   }
 
