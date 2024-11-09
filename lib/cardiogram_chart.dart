@@ -20,7 +20,6 @@ class _CardiogramChartState extends State<CardiogramChart> {
   final double _visibleRange = 5000;
   bool _isAutoScroll = true;
   bool _isStreaming = true;
-  Timer? _sliderInteractionTimer;
 
   double _xValue = 0;
   double _xOffset = 0;
@@ -76,7 +75,6 @@ class _CardiogramChartState extends State<CardiogramChart> {
   void dispose() {
     _dataSubscription?.cancel();
     _client.shutdown();
-    _sliderInteractionTimer?.cancel();
     super.dispose();
   }
 
@@ -92,12 +90,23 @@ class _CardiogramChartState extends State<CardiogramChart> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                SizedBox(
+                    width: double.infinity,
+                    height: 300,
+                    child: Card(
+                      color: Colors.white,
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child:
                 CardiogramChartWidget(
                   cardiogramData: _cardiogramData,
                   sliderPosition: _sliderPosition,
                   visibleRange: _visibleRange,
                   xOffset: _xOffset,
-                ),
+                      ),
+                    )),
                 SliderWidget(
                   sliderPosition: _sliderPosition,
                   maxSliderPosition: maxSliderPosition,
@@ -131,23 +140,14 @@ class _CardiogramChartState extends State<CardiogramChart> {
   void _onSliderChange(double value) {
     // Остановим поток при перемещении слайдера
     _stopStreaming();
-
     setState(() {
       _sliderPosition = value;
       _isAutoScroll = (_sliderPosition >= _xValue - _xOffset - _visibleRange);
     });
-
-    // Если происходит быстрое перемещение, отменим предыдущий таймер
-    _sliderInteractionTimer?.cancel();
-
-    // Установим таймер для возобновления потока через 1 секунду после окончания взаимодействия
-    _sliderInteractionTimer = Timer(const Duration(seconds: 1), () {
-      _resumeStreaming();
-    });
   }
 
-  Future<void> _stopStreaming() async {
-    await _dataSubscription?.cancel();
+  void _stopStreaming() {
+    _dataSubscription?.cancel();
     setState(() {
       _isStreaming = false;
     });
@@ -174,43 +174,41 @@ class CardiogramChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 300,
-      child: Card(
-        color: Colors.white,
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12.0),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: LineChart(
-              duration: const Duration(milliseconds: 0),
-              curve: Curves.linear,
-              LineChartData(
-                lineTouchData: _lineTouchData(),
-                minX: sliderPosition + xOffset,
-                maxX: sliderPosition + xOffset + visibleRange,
-                minY: -1,
-                maxY: 1,
-                titlesData: _buildTitlesData(),
-                gridData: _buildGridData(),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: cardiogramData,
-                    isCurved: false,
-                    color: Colors.redAccent,
-                    barWidth: 1,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(show: false),
-                  ),
-                ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12.0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: LineChart(
+          duration: const Duration(milliseconds: 0),
+          curve: Curves.linear,
+          LineChartData(
+            // rangeAnnotations: RangeAnnotations(
+            //   verticalRangeAnnotations: [
+            //     VerticalRangeAnnotation(
+            //       x1: -0.5,
+            //       x2: 100000,
+            //       color: Colors.green.withOpacity(0.3),
+            //     ),
+            //   ],
+            // ),
+            lineTouchData: _lineTouchData(),
+            minX: sliderPosition + xOffset,
+            maxX: sliderPosition + xOffset + visibleRange,
+            minY: -1,
+            maxY: 1,
+            titlesData: _buildTitlesData(),
+            gridData: _buildGridData(),
+            borderData: FlBorderData(show: false),
+            lineBarsData: [
+              LineChartBarData(
+                spots: cardiogramData,
+                isCurved: true,
+                color: Colors.redAccent,
+                barWidth: 1,
+                isStrokeCapRound: true,
+                dotData: const FlDotData(show: false),
               ),
-            ),
+            ],
           ),
         ),
       ),
