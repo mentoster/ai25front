@@ -1,4 +1,5 @@
-import 'package:ai25front/cardiogram_chart.dart';
+import 'package:ai25front/file_chooser_widget.dart';
+import 'package:ai25front/inside_screen.dart';
 import 'package:ai25front/multi_cardiogram_chart.dart';
 import 'package:ai25front/side_menu.dart';
 import 'package:ai25front/theme/theme.dart';
@@ -40,12 +41,10 @@ class _MyAppState extends State<MyApp> {
       // Пауза, чтобы убедиться, что процесс успел стартовать
       await Future.delayed(const Duration(seconds: 2));
 
-      if (process.pid != null) {
-        setState(() {
-          _isExeStarted = true;
-        });
-        print("Приложение запущено.");
-      }
+      setState(() {
+        _isExeStarted = true;
+      });
+      print("Приложение запущено.");
     } catch (e) {
       print("Ошибка при запуске приложения: $e");
     }
@@ -64,7 +63,7 @@ class _MyAppState extends State<MyApp> {
                   Expanded(
                     child: Padding(
                         padding: const EdgeInsets.all(16),
-                        child: MultiCardiogramChart()),
+                        child: InsideScreen()),
                   ),
                 ],
               )

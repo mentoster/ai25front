@@ -258,7 +258,7 @@ void _updateChartData(CardioData data) {
                   Icon(Icons.zoom_in),
                   const SizedBox(width: 8),
                   Text(
-                    "X${(_visibleRange / 5000).toStringAsFixed(1)}",
+                    "X${(5000 / _visibleRange).toStringAsFixed(1)}",
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
