@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-const Color primaryGreen = Color(0xFF388E3C); // насыщенный зеленый
-const Color lightGreen =
-    Color.fromARGB(255, 232, 245, 233); // светло-зеленый для фона
-const Color accentGreen = Color(0xFF66BB6A); // дополнительный зеленый
-const Color darkGreen = Color(0xFF2E7D32);   // темный зеленый
+const Color primary = Color(0xFF1976D2); // насыщенный синий
+const Color light = Color.fromARGB(255, 227, 242, 253); // светло-синий для фона
+const Color accent = Color(0xFF42A5F5); // дополнительный синий
+const Color dark = Color(0xFF1565C0);   // темный синий

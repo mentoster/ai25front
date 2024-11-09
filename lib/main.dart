@@ -12,8 +12,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Green Themed App',
-      theme: greenTheme,
+      title: 'Крыски',
+      theme: mytheme,
       home: Scaffold(
         appBar: AppBar(title: const Text('Кардиограмма')),
         body: const Center(
