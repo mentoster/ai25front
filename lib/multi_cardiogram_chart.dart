@@ -163,69 +163,129 @@ void _updateChartData(CardioData data) {
   @override
   Widget build(BuildContext context) {
     return Column(
+      // to left align the content
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Wrap(
-            spacing: 8.0,
-            children: _availableChannels.map((channel) {
-              return FilterChip(
-                label: Text(channel.name),
-                selected: _selectedChannelNames.contains(channel.name),
-                onSelected: (isSelected) {
-                  setState(() {
-                    if (isSelected) {
-                      _selectedChannelNames.add(channel.name);
-                    } else {
-                      _selectedChannelNames.remove(channel.name);
-                    }
-                  });
-                },
-                backgroundColor: Colors.grey[300],
-                selectedColor: channel.color.withOpacity(0.3),
-                checkmarkColor: channel.color,
-              );
-            }).toList(),
+        Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Выбор канала',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8.0,
+                  children: _availableChannels.map((channel) {
+                    return FilterChip(
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.circle,
+                            color: channel.color,
+                            size: 12,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            channel.name,
+                            style: TextStyle(color: Colors.black87),
+                          ),
+                        ],
+                      ),
+                      selected: _selectedChannelNames.contains(channel.name),
+                      onSelected: (isSelected) {
+                        setState(() {
+                          if (isSelected) {
+                            _selectedChannelNames.add(channel.name);
+                          } else {
+                            _selectedChannelNames.remove(channel.name);
+                          }
+                        });
+                      },
+                      backgroundColor: Colors.grey[200],
+                      selectedColor: channel.color.withOpacity(0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      checkmarkColor: channel.color,
+                      side: BorderSide(
+                        color: channel.color.withOpacity(0.7),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
           ),
         ),
         Expanded(
-          child: ListView(
-            children: _availableChannels
-                .where(
-                    (channel) => _selectedChannelNames.contains(channel.name))
-                .map((channel) => SizedBox(
-                      height: 200,
-                      child: CardiogramChart(
-                        color: channel.color,
-                        sliderPosition: _sliderPosition,
-                        visibleRange: _visibleRange,
-                        cardiogramData: channel.data,
-                      ),
-                    ))
-                .toList(),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: _availableChannels
+                  .where(
+                      (channel) => _selectedChannelNames.contains(channel.name))
+                  .map((channel) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: SizedBox(
+                          height: 200,
+                          child: CardiogramChart(
+                            color: channel.color,
+                            sliderPosition: _sliderPosition,
+                            visibleRange: _visibleRange,
+                            cardiogramData: channel.data,
+                          ),
+                        ),
+                      ))
+                  .toList(),
+            ),
           ),
         ),
-        const SizedBox(height: 16),
-        // Channel selection chips at the bottom of the screen
 
         const SizedBox(height: 16),
-        // Common slider and control buttons
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Position Slider
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Позиция',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+        Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Position Slider
+                Text(
+                  'Позиция',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
-                  Slider(
+                ),
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: Colors.grey,
+                    inactiveTrackColor: Colors.grey,
+                    trackHeight: 4.0,
+                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0),
+                    overlayShape: RoundSliderOverlayShape(overlayRadius: 14.0),
+                  ),
+                  child: Slider(
+                    divisions: 150,
                     value: _sliderPosition.clamp(
                         _xOffset, _maxSliderPosition - _visibleRange),
                     min: _xOffset,
@@ -235,53 +295,89 @@ void _updateChartData(CardioData data) {
                         ? _onPositionSliderChange
                         : null,
                   ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              // Zoom Slider with Icons and Label
-              Row(
-                children: [
-                  Icon(Icons.zoom_out),
-                  Expanded(
-                    child: Slider(
-                      value: maxRange -
-                          _visibleRange, // Inverted value for slider position
-                      min: maxRange - 10000, // Max zoom (smallest range)
-                      max: maxRange - 1000, // Min zoom (largest range)
-                      divisions: 9, // For steps of 1000
-                      onChanged: (value) {
-                        _onZoomSliderChange(
-                            maxRange - value); // Adjust _visibleRange
-                      },
+                ),
+                const SizedBox(height: 16),
+
+                // Zoom Slider with Icons and Label
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(Icons.zoom_out, color: Colors.grey),
+                    Expanded(
+                      child: SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          trackHeight: 4.0,
+                          thumbShape:
+                              RoundSliderThumbShape(enabledThumbRadius: 8.0),
+                          overlayShape:
+                              RoundSliderOverlayShape(overlayRadius: 14.0),
+                          overlayColor: Colors.greenAccent.withOpacity(0.2),
+                        ),
+                        child: Slider(
+                          value: maxRange - _visibleRange,
+                          min: maxRange - 10000,
+                          max: maxRange - 1000,
+                          divisions: 9,
+                          onChanged: (value) {
+                            _onZoomSliderChange(maxRange - value);
+                          },
+                        ),
+                      ),
                     ),
-                  ),
-                  Icon(Icons.zoom_in),
-                  const SizedBox(width: 8),
-                  Text(
-                    "X${(5000 / _visibleRange).toStringAsFixed(1)}",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              // Control buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: _isStreaming ? _stopStreaming : null,
-                    child: const Text('Остановить'),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: !_isStreaming ? _resumeStreaming : null,
-                    child: const Text('Продолжить'),
-                  ),
-                ],
-              ),
-            ],
+                    Icon(Icons.zoom_in, color: Colors.grey),
+                    const SizedBox(width: 8),
+                    Text(
+                      "X${(5000 / _visibleRange).toStringAsFixed(1)}",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // Control buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: _isStreaming ? _stopStreaming : null,
+                      icon: Icon(Icons.stop, color: Colors.redAccent),
+                      label: const Text('Остановить',
+                          style: TextStyle(color: Colors.redAccent)),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.redAccent),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 24,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: !_isStreaming ? _resumeStreaming : null,
+                      icon: Icon(Icons.play_arrow, color: Colors.green),
+                      label: const Text('Продолжить',
+                          style: TextStyle(color: Colors.green)),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.green),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 24,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
+        )
       ],
     );
   }
