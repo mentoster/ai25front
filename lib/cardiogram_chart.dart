@@ -9,12 +9,12 @@ class CardiogramChart extends StatelessWidget {
   final Color color;
 
   const CardiogramChart({
-    Key? key,
+    super.key,
     required this.cardiogramData,
     required this.sliderPosition,
     required this.visibleRange,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class CardiogramChart extends StatelessWidget {
     final DateTime startTime = DateTime.now();
 
     // Define the interval for vertical lines
-    const int interval = 5000;
+    const int interval = 50000;
 
     // Calculate the number of vertical lines based on the visible range
     final int numberOfLines = (visibleRange / interval).ceil();
@@ -119,7 +119,7 @@ class CardiogramChart extends StatelessWidget {
         getTooltipItems: (touchedSpots) {
           return touchedSpots
               .map((spot) => LineTooltipItem(
-                    '${spot.y.toStringAsFixed(5)}',
+                    spot.y.toStringAsFixed(5),
                     const TextStyle(color: Colors.black),
                   ))
               .toList();

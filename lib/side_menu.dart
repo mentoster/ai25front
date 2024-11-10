@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
 class SideMenu extends StatefulWidget {
+  const SideMenu({super.key});
+
   @override
   _SideMenuState createState() => _SideMenuState();
 }

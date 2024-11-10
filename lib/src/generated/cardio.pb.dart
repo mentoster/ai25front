@@ -47,7 +47,7 @@ class CardioRequest extends $pb.GeneratedMessage {
 
 class CardioData extends $pb.GeneratedMessage {
   factory CardioData({
-    $core.Iterable<$core.int>? timestamp,
+    $core.Iterable<$core.double>? timestamp,
     $core.Iterable<$core.double>? vector1,
     $core.Iterable<$core.double>? vector2,
     $core.Iterable<$core.double>? vector3,
@@ -76,7 +76,7 @@ class CardioData extends $pb.GeneratedMessage {
   factory CardioData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CardioData', package: const $pb.PackageName(_omitMessageNames ? '' : 'cardio'), createEmptyInstance: create)
-    ..p<$core.int>(1, _omitFieldNames ? '' : 'timestamp', $pb.PbFieldType.K3)
+    ..p<$core.double>(1, _omitFieldNames ? '' : 'timestamp', $pb.PbFieldType.KF)
     ..p<$core.double>(2, _omitFieldNames ? '' : 'vector1', $pb.PbFieldType.KF)
     ..p<$core.double>(3, _omitFieldNames ? '' : 'vector2', $pb.PbFieldType.KF)
     ..p<$core.double>(4, _omitFieldNames ? '' : 'vector3', $pb.PbFieldType.KF)
@@ -106,7 +106,7 @@ class CardioData extends $pb.GeneratedMessage {
   static CardioData? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$core.int> get timestamp => $_getList(0);
+  $core.List<$core.double> get timestamp => $_getList(0);
 
   @$pb.TagNumber(2)
   $core.List<$core.double> get vector1 => $_getList(1);

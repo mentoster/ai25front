@@ -26,7 +26,7 @@ final $typed_data.Uint8List cardioRequestDescriptor = $convert.base64Decode(
 const CardioData$json = {
   '1': 'CardioData',
   '2': [
-    {'1': 'timestamp', '3': 1, '4': 3, '5': 5, '10': 'timestamp'},
+    {'1': 'timestamp', '3': 1, '4': 3, '5': 2, '10': 'timestamp'},
     {'1': 'vector1', '3': 2, '4': 3, '5': 2, '10': 'vector1'},
     {'1': 'vector2', '3': 3, '4': 3, '5': 2, '10': 'vector2'},
     {'1': 'vector3', '3': 4, '4': 3, '5': 2, '10': 'vector3'},
@@ -36,7 +36,7 @@ const CardioData$json = {
 
 /// Descriptor for `CardioData`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List cardioDataDescriptor = $convert.base64Decode(
-    'CgpDYXJkaW9EYXRhEhwKCXRpbWVzdGFtcBgBIAMoBVIJdGltZXN0YW1wEhgKB3ZlY3RvcjEYAi'
+    'CgpDYXJkaW9EYXRhEhwKCXRpbWVzdGFtcBgBIAMoAlIJdGltZXN0YW1wEhgKB3ZlY3RvcjEYAi'
     'ADKAJSB3ZlY3RvcjESGAoHdmVjdG9yMhgDIAMoAlIHdmVjdG9yMhIYCgd2ZWN0b3IzGAQgAygC'
     'Ugd2ZWN0b3IzEh4KCmFubm90YXRpb24YBSABKAlSCmFubm90YXRpb24=');
 

@@ -12,7 +12,7 @@ class FileChooserWidget extends StatefulWidget {
   final Function(String)
       onFileSelected; // Колбэк для передачи выбранного файла родителю
 
-  FileChooserWidget({required this.onFileSelected});
+  const FileChooserWidget({super.key, required this.onFileSelected});
 
   @override
   _FileChooserWidgetState createState() => _FileChooserWidgetState();

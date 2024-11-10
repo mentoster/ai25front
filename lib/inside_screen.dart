@@ -31,7 +31,7 @@ class _InsideScreenState extends State<InsideScreen> {
 class NextWidget extends StatelessWidget {
   final String selectedFilePath;
 
-  NextWidget({required this.selectedFilePath});
+  const NextWidget({super.key, required this.selectedFilePath});
 
   @override
   Widget build(BuildContext context) {

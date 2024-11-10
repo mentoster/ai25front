@@ -12,10 +12,12 @@ class ChannelData {
   final List<FlSpot> data;
 
   ChannelData({required this.name, required this.color})
-      : data = [FlSpot(0, 0)];
+      : data = [];
 }
 
 class MultiCardiogramChart extends StatefulWidget {
+  const MultiCardiogramChart({super.key});
+
   @override
   _MultiCardiogramChartState createState() => _MultiCardiogramChartState();
 }
@@ -27,13 +29,13 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
   StreamSubscription<CardioData>? _dataSubscription;
 
   double _sliderPosition = 0;
-  double _visibleRange = 20000;
-  double _maxSliderPosition = 20000;
-  final double maxRange = 40000;
+double _visibleRange = 400000; // Set to 5 times 80000 for a zoom-out effect
+  final double maxRange = 800000; // Set max range accordingly
+  double _maxSliderPosition = 80000;
   bool _isAutoScroll = true;
   bool _isStreaming = true;
 
-  double _xValue = 0;
+  final double _xValue = 0;
   double _xOffset = 0;
   bool _isMouseCardCreated = false;
   @override
@@ -94,12 +96,21 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
           vectorData = [];
         }
         // Map the incoming data to FlSpot points and add to channel data
-        final newPoints =
-            vectorData.map((value) => FlSpot(_xValue++, value)).toList();
-        channel.data.addAll(newPoints);
+        // final newPoints =
+        //     vectorData.map((value) => FlSpot(_xValue++, value)).toList();
+        // channel.data.addAll(newPoints);
+        for (int i = 0; i < vectorData.length; i++) {
+          double newX = (data.timestamp[i] * 100000).roundToDouble();
+
+          // Only add the point if the new x is greater than the last x in channel data
+          if (channel.data.isEmpty || newX > channel.data.last.x) {
+            print(newX); // Print the new x value
+            channel.data.add(FlSpot(newX, vectorData[i]));
+          }
+        }
 
         // Remove old data if it exceeds the delete range
-        const deleteRange = 20000;
+        const deleteRange = 200000;
         int pointsToRemove = channel.data.length - deleteRange;
         if (pointsToRemove > 0 && pointsToRemove < channel.data.length) {
           channel.data.removeRange(0, pointsToRemove);
@@ -144,7 +155,10 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
 
   void _onZoomSliderChange(double value) {
     setState(() {
-      _visibleRange = value;
+      // Clamp _visibleRange to ensure it fits the new 5x zoomed-out range
+      _visibleRange = value.clamp(40000.0, maxRange);
+      _sliderPosition =
+          _sliderPosition.clamp(_xOffset, _maxSliderPosition - _visibleRange);
     });
   }
 
@@ -168,7 +182,7 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
         Row(
           children: [
             SizedBox(
-                width: 500, // Установите ширину для всей формы
+                width: 350, // Установите ширину для всей формы
                 child: Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -210,31 +224,6 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
                                   ),
                                   const SizedBox(width: 16),
                                   // Поле для выбора пола
-                                  Expanded(
-                                    flex: 2,
-                                    child: DropdownButtonFormField<String>(
-                                      value: SetFileToProcessResponseData.isMale
-                                          ? 'Мужской'
-                                          : 'Женский',
-                                      decoration: InputDecoration(
-                                        labelText: 'Пол',
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12.0),
-                                        ),
-                                      ),
-                                      items: ['Мужской', 'Женский']
-                                          .map((String gender) =>
-                                              DropdownMenuItem<String>(
-                                                value: gender,
-                                                child: Text(gender),
-                                              ))
-                                          .toList(),
-                                      onChanged: (String? value) {
-                                        // Логика обработки выбора пола
-                                      },
-                                    ),
-                                  ),
                                   const SizedBox(width: 16),
                                   // Boolean переключатель
                                   Expanded(
@@ -407,6 +396,7 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Icon(Icons.zoom_out, color: Colors.grey),
+                    // Adjust the slider min and max based on the allowed range
                     Expanded(
                       child: SliderTheme(
                         data: SliderTheme.of(context).copyWith(
@@ -419,8 +409,10 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
                         ),
                         child: Slider(
                           value: maxRange - _visibleRange,
-                          min: maxRange - 40000,
-                          max: maxRange - 5000,
+                          min: maxRange -
+                              700000, // Adjust min to allow further zoom-out
+                          max: maxRange -
+                              40000, // Keep max to allow full zoom-in
                           divisions: 9,
                           onChanged: (value) {
                             _onZoomSliderChange(maxRange - value);
@@ -428,6 +420,7 @@ class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
                         ),
                       ),
                     ),
+
                     Icon(Icons.zoom_in, color: Colors.grey),
                     const SizedBox(width: 8),
                     Text(

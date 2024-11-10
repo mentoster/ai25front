@@ -1,6 +1,4 @@
-import 'package:ai25front/file_chooser_widget.dart';
 import 'package:ai25front/inside_screen.dart';
-import 'package:ai25front/multi_cardiogram_chart.dart';
 import 'package:ai25front/side_menu.dart';
 import 'package:ai25front/theme/theme.dart';
 import 'dart:io';
