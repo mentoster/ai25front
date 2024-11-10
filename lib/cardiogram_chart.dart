@@ -1,3 +1,4 @@
+import 'package:ai25front/data/annotation_range.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'dart:async';
@@ -7,56 +8,64 @@ class CardiogramChart extends StatelessWidget {
   final double sliderPosition;
   final double visibleRange;
   final Color color;
+  final List<AnnotationRange> annotationRanges;
 
   const CardiogramChart({
-    super.key,
+    Key? key,
     required this.cardiogramData,
     required this.sliderPosition,
     required this.visibleRange,
     required this.color,
-  });
+    required this.annotationRanges,
+  }) : super(key: key);
+
+  Color getColorForAnnotation(String annotation, {double opacity = 0.2}) {
+    switch (annotation) {
+      case 'ds1-ds2':
+        return Colors.red.withOpacity(opacity);
+      case 'is1-is2':
+        return Colors.green.withOpacity(opacity);
+      default:
+        // Без цвета для других аннотаций
+        return Colors.transparent;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Calculate dynamic minY and maxY based on cardiogramData
+    // Вычисляем динамические minY и maxY
     final double minY =
         cardiogramData.map((e) => e.y).reduce((a, b) => a < b ? a : b);
     final double maxY =
         cardiogramData.map((e) => e.y).reduce((a, b) => a > b ? a : b);
 
-    // Define the start time for the chart
-    final DateTime startTime = DateTime.now();
+    // Интервал для вертикальных линий
+    const int interval = 500000;
 
-    // Define the interval for vertical lines
-    const int interval = 50000;
-
-    // Calculate the number of vertical lines based on the visible range
+    // Количество вертикальных линий
     final int numberOfLines = (visibleRange / interval).ceil();
 
-    // Generate vertical lines at every 300 x units
+    // Генерация вертикальных линий
     List<VerticalLine> verticalLines = [];
     for (int i = 1; i <= numberOfLines; i++) {
       double xPosition = sliderPosition + (i * interval);
 
-      // Ensure the xPosition does not exceed the maxX
       if (xPosition > sliderPosition + visibleRange) break;
-      // Calculate the corresponding time for the label
-      Duration labelDuration = Duration(seconds: (xPosition / 400).toInt());
 
-      // Format the time as desired, e.g., "HH:mm:ss"
+      Duration labelDuration =
+          Duration(milliseconds: (xPosition * (1 / 400)).toInt());
       String formattedTime = [
         labelDuration.inHours.toString().padLeft(2, '0'),
         (labelDuration.inMinutes % 60).toString().padLeft(2, '0'),
-        (labelDuration.inSeconds % 60).toString().padLeft(2, '0')
+        (labelDuration.inSeconds % 60).toString().padLeft(2, '0'),
+        (labelDuration.inMilliseconds % 1000).toString().padLeft(3, '0')
       ].join(':');
 
-      // Add the VerticalLine with the label
       verticalLines.add(
         VerticalLine(
-
           x: xPosition,
           color: Colors.grey.withOpacity(0.5),
-          strokeWidth: 1,
+          strokeWidth: 0.5,
           dashArray: [5, 5],
           label: VerticalLineLabel(
             show: true,
@@ -82,6 +91,16 @@ class CardiogramChart extends StatelessWidget {
             duration: const Duration(milliseconds: 0),
             curve: Curves.linear,
             LineChartData(
+              rangeAnnotations: RangeAnnotations(
+                verticalRangeAnnotations: annotationRanges.map((range) {
+                  return VerticalRangeAnnotation(
+                    x1: range.x1,
+                    x2: range.x2,
+                    color:
+                        getColorForAnnotation(range.annotation, opacity: 0.15),
+                  );
+                }).toList(),
+              ),
               extraLinesData: ExtraLinesData(
                 verticalLines: verticalLines,
               ),
@@ -112,7 +131,6 @@ class CardiogramChart extends StatelessWidget {
 
   LineTouchData _lineTouchData() {
     return LineTouchData(
-
       touchTooltipData: LineTouchTooltipData(
         getTooltipColor: (_) => Colors.white,
         tooltipBorder: BorderSide(color: Colors.blue, width: 1),
@@ -134,7 +152,7 @@ class CardiogramChart extends StatelessWidget {
       leftTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
-          interval: (maxY - minY) / 4, // Dynamic interval for labels
+          interval: (maxY - minY) / 4, // Динамический интервал
           getTitlesWidget: (value, meta) =>
               leftTitleWidgets(value, meta, minY, maxY),
           reservedSize: 42,
@@ -161,18 +179,17 @@ class CardiogramChart extends StatelessWidget {
   }
 }
 
-// Updated leftTitleWidgets function to dynamically display labels based on minY and maxY
+// Функция для отображения подписей слева
 Widget leftTitleWidgets(
     double value, TitleMeta meta, double minY, double maxY) {
   final style = TextStyle(
       fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87);
 
-  // Display only significant labels based on minY, maxY, and the value position
   if (value == minY || value == maxY) {
     return Text(value.toStringAsFixed(1), style: style);
   } else if (value == (minY + maxY) / 2) {
     return Text(value.toStringAsFixed(1), style: style);
   } else {
-    return Container(); // Return empty for other values to reduce clutter
+    return Container(); // Пустой контейнер для уменьшения загромождения
   }
 }

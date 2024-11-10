@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:ai25front/data/annotation_range.dart';
 import 'package:ai25front/data/set_file_to_process_response_data.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -11,8 +12,7 @@ class ChannelData {
   final Color color;
   final List<FlSpot> data;
 
-  ChannelData({required this.name, required this.color})
-      : data = [];
+  ChannelData({required this.name, required this.color}) : data = [];
 }
 
 class MultiCardiogramChart extends StatefulWidget {
@@ -23,19 +23,22 @@ class MultiCardiogramChart extends StatefulWidget {
 }
 
 class _MultiCardiogramChartState extends State<MultiCardiogramChart> {
+  List<AnnotationRange> _annotationRanges = [];
   final List<ChannelData> _availableChannels = [];
   final Set<String> _selectedChannelNames = {};
   late CardioClient _client;
   StreamSubscription<CardioData>? _dataSubscription;
 
   double _sliderPosition = 0;
-double _visibleRange = 400000; // Set to 5 times 80000 for a zoom-out effect
-  final double maxRange = 800000; // Set max range accordingly
-  double _maxSliderPosition = 80000;
+  double _visibleRange = 4000000;
+  final double maxRange = 8000000;
+  double _maxSliderPosition = 800000;
   bool _isAutoScroll = true;
   bool _isStreaming = true;
+// Переменные для отслеживания открытых диапазонов
+  double? _ds1StartX;
+  double? _is1StartX;
 
-  final double _xValue = 0;
   double _xOffset = 0;
   bool _isMouseCardCreated = false;
   @override
@@ -79,11 +82,8 @@ double _visibleRange = 400000; // Set to 5 times 80000 for a zoom-out effect
       _isStreaming = true;
     });
   }
-
-  void _updateChartData(CardioData data) {
+void _updateChartData(CardioData data) {
     setState(() {
-      print("Updating chart data...");
-
       for (final channel in _availableChannels) {
         List<double> vectorData;
         if (channel.name == SetFileToProcessResponseData.label1) {
@@ -95,47 +95,74 @@ double _visibleRange = 400000; // Set to 5 times 80000 for a zoom-out effect
         } else {
           vectorData = [];
         }
-        // Map the incoming data to FlSpot points and add to channel data
-        // final newPoints =
-        //     vectorData.map((value) => FlSpot(_xValue++, value)).toList();
-        // channel.data.addAll(newPoints);
+
         for (int i = 0; i < vectorData.length; i++) {
           double newX = (data.timestamp[i] * 100000).roundToDouble();
 
-          // Only add the point if the new x is greater than the last x in channel data
+          // Добавляем точку только если она больше последней
           if (channel.data.isEmpty || newX > channel.data.last.x) {
-            print(newX); // Print the new x value
             channel.data.add(FlSpot(newX, vectorData[i]));
           }
         }
 
-        // Remove old data if it exceeds the delete range
-        const deleteRange = 200000;
-        int pointsToRemove = channel.data.length - deleteRange;
-        if (pointsToRemove > 0 && pointsToRemove < channel.data.length) {
-          channel.data.removeRange(0, pointsToRemove);
+        if (data.timestamp.isNotEmpty) {
+          double x1 = (data.timestamp.first * 100000).roundToDouble();
+          double x2 = (data.timestamp.last * 100000).roundToDouble();
+          String annotation = data.annotation;
+
+          // Обработка аннотаций
+          if (annotation == 'ds1') {
+            _ds1StartX = x1;
+          } else if (annotation == 'is1') {
+            _is1StartX = x1;
+          } else {
+            // Любая другая метка означает конец текущих диапазонов
+            if (_ds1StartX != null) {
+              _annotationRanges.add(AnnotationRange(
+                x1: _ds1StartX!,
+                x2: x2,
+                annotation: 'ds1-ds2',
+              ));
+              _ds1StartX = null;
+            }
+            if (_is1StartX != null) {
+              _annotationRanges.add(AnnotationRange(
+                x1: _is1StartX!,
+                x2: x2,
+                annotation: 'is1-is2',
+              ));
+              _is1StartX = null;
+            }
+          }
+
+          // Ограничение количества точек для производительности
+          int deleteRange = (_visibleRange / 2).toInt(); // Пример корректировки
+          int pointsToRemove = channel.data.length - deleteRange;
+          if (pointsToRemove > 0 && pointsToRemove < channel.data.length) {
+            channel.data.removeRange(0, pointsToRemove);
+          }
         }
       }
 
-      // Calculate _xOffset based on the minimum x value across all channels
+      // Вычисление _xOffset и _maxSliderPosition
       _xOffset = _availableChannels
           .where((channel) => channel.data.isNotEmpty)
           .map((channel) => channel.data.first.x)
           .reduce((a, b) => a < b ? a : b);
 
-      // Calculate _maxSliderPosition based on the last x value across all channels
       _maxSliderPosition = _availableChannels
           .where((channel) => channel.data.isNotEmpty)
           .map((channel) => channel.data.last.x)
           .reduce((a, b) => a > b ? a : b);
 
-      // Update the slider position if auto-scrolling is enabled
+      // Автоматическая прокрутка
       if (_isAutoScroll) {
         _sliderPosition = (_maxSliderPosition - _visibleRange)
-            .clamp(_xOffset, _maxSliderPosition);
+            .clamp(_xOffset, _maxSliderPosition - _visibleRange);
       }
     });
   }
+
 
   @override
   void dispose() {
@@ -153,14 +180,14 @@ double _visibleRange = 400000; // Set to 5 times 80000 for a zoom-out effect
     });
   }
 
-  void _onZoomSliderChange(double value) {
+void _onZoomSliderChange(double value) {
     setState(() {
-      // Clamp _visibleRange to ensure it fits the new 5x zoomed-out range
-      _visibleRange = value.clamp(40000.0, maxRange);
+      _visibleRange = value.clamp(400000, 4000000);
       _sliderPosition =
           _sliderPosition.clamp(_xOffset, _maxSliderPosition - _visibleRange);
     });
   }
+
 
   void _stopStreaming() {
     _dataSubscription?.cancel();
@@ -255,6 +282,48 @@ double _visibleRange = 400000; // Set to 5 times 80000 for a zoom-out effect
                               )
                             ])))),
             SizedBox(
+                // Set the width for the entire form
+                width: 350,
+                height: 128,
+                child: Card(
+                  elevation: 4,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // ds1 hint
+                      Row(
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text('ds1-ds2', style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text('is1-is2', style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                      // is2 hint
+                    ],
+                  ),
+                )),
+            SizedBox(
               height: 128,
               child: Card(
                 elevation: 4,
@@ -342,6 +411,7 @@ double _visibleRange = 400000; // Set to 5 times 80000 for a zoom-out effect
                             sliderPosition: _sliderPosition,
                             visibleRange: _visibleRange,
                             cardiogramData: channel.data,
+                            annotationRanges: _annotationRanges,
                           ),
                         ),
                       ))
@@ -410,9 +480,8 @@ double _visibleRange = 400000; // Set to 5 times 80000 for a zoom-out effect
                         child: Slider(
                           value: maxRange - _visibleRange,
                           min: maxRange -
-                              700000, // Adjust min to allow further zoom-out
-                          max: maxRange -
-                              40000, // Keep max to allow full zoom-in
+                              4000000, // Start with the default value
+                          max: maxRange - 400000, // Maximum zoom-in value
                           divisions: 9,
                           onChanged: (value) {
                             _onZoomSliderChange(maxRange - value);
@@ -424,7 +493,7 @@ double _visibleRange = 400000; // Set to 5 times 80000 for a zoom-out effect
                     Icon(Icons.zoom_in, color: Colors.grey),
                     const SizedBox(width: 8),
                     Text(
-                      "X${(40000 / _visibleRange).toStringAsFixed(1)}",
+                      "X${(4000000 / _visibleRange).toStringAsFixed(1)}",
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
